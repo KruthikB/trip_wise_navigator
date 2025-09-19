@@ -11,6 +11,16 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
+// In a development environment, we might need to dynamically adjust the authDomain
+// if the app is served from a preview URL that is not yet in the authorized domains.
+if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
+    const hostname = window.location.hostname;
+    if (hostname.endsWith('.cloudworkstations.dev') || hostname.endsWith('.web.app')) {
+        firebaseConfig.authDomain = hostname;
+    }
+}
+
+
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
 const db = getFirestore(app);
