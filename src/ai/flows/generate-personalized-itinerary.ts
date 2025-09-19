@@ -40,7 +40,25 @@ Duration: {{{duration}}} days
 Budget: {{{budget}}}
 Themes: {{#each themes}}{{{this}}}{{#unless @last}}, {{/unless}}{{/each}}
 
-Ensure the itinerary includes place name, description, travel time, and cost breakdown for each day. The top-level JSON response must include a "destination" (string), "duration" (number), "budget" (string), and an "itinerary" (array of day objects). Return a valid JSON object. Do not include any explanations or conversational text. Only provide the JSON. If any theme is impossible given the destination or budget, make a reasonable alternative. Do not return an empty JSON object.`,
+The response must be a valid JSON object.
+The top-level JSON object must include:
+- "destination": a string matching the user's input.
+- "duration": a number matching the user's input.
+- "budget": a string matching the user's input.
+- "itinerary": an array of day objects.
+
+Each day object in the "itinerary" array must include:
+- "day": a number (e.g., 1, 2).
+- "title": a string for the day's theme (e.g., "Cultural Exploration").
+- "activities": an array of activity objects.
+
+Each activity object in the "activities" array must include:
+- "placeName": a string for the name of the place or activity.
+- "description": a string describing the activity.
+- "travelTime": an optional string for estimated travel time.
+- "cost": an optional string for the estimated cost.
+
+Do not omit any of the required fields. Do not include any explanations or conversational text. Only provide the raw JSON. If a theme is not feasible, choose a reasonable alternative.`,
 });
 
 const generatePersonalizedItineraryFlow = ai.defineFlow(
