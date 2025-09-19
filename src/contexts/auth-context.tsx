@@ -2,7 +2,7 @@
 
 import type { User } from 'firebase/auth';
 import { createContext, useEffect, useState, type ReactNode } from 'react';
-import { GoogleAuthProvider, signInWithPopup, signOut as firebaseSignOut, AuthError } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithPopup, signOut as firebaseSignOut, AuthError, signInAnonymously } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
@@ -11,6 +11,7 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   signInWithGoogle: () => Promise<void>;
+  signInAsGuest: () => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -54,6 +55,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const signInAsGuest = async () => {
+    try {
+      await signInAnonymously(auth);
+    } catch (error) {
+      console.error('Error signing in as guest', error);
+      toast({
+        variant: 'destructive',
+        title: 'Guest Login Failed',
+        description: 'Could not sign you in as a guest. Please try again.',
+      });
+    }
+  };
+
   const signOut = async () => {
     try {
       await firebaseSignOut(auth);
@@ -63,7 +77,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const value = { user, loading, signInWithGoogle, signOut };
+  const value = { user, loading, signInWithGoogle, signInAsGuest, signOut };
 
   return (
     <AuthContext.Provider value={value}>

@@ -6,14 +6,16 @@ import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { GoogleIcon, TripWiseLogo } from '@/components/icons';
-import { Loader2 } from 'lucide-react';
+import { Loader2, User } from 'lucide-react';
 
 export default function LoginPage() {
-  const { user, loading, signInWithGoogle } = useAuth();
+  const { user, loading, signInWithGoogle, signInAsGuest } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get('redirect') || '/dashboard';
   const [isClient, setIsClient] = useState(false);
+  const [isGuestSigningIn, setIsGuestSigningIn] = useState(false);
+  const [isGoogleSigningIn, setIsGoogleSigningIn] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
@@ -24,6 +26,18 @@ export default function LoginPage() {
       router.push(redirect);
     }
   }, [user, loading, router, redirect]);
+
+  const handleGoogleSignIn = async () => {
+    setIsGoogleSigningIn(true);
+    await signInWithGoogle();
+    setIsGoogleSigningIn(false);
+  }
+
+  const handleGuestSignIn = async () => {
+    setIsGuestSigningIn(true);
+    await signInAsGuest();
+    setIsGuestSigningIn(false);
+  }
 
   if (!isClient || loading || user) {
     return (
@@ -43,22 +57,47 @@ export default function LoginPage() {
         </div>
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Welcome Back</CardTitle>
-          <CardDescription>Sign in to plan your next adventure.</CardDescription>
+          <CardTitle className="text-2xl">Welcome</CardTitle>
+          <CardDescription>Sign in or continue as a guest to plan your next adventure.</CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="grid gap-4">
           <Button
             variant="outline"
             className="w-full"
-            onClick={signInWithGoogle}
-            disabled={loading}
+            onClick={handleGoogleSignIn}
+            disabled={loading || isGuestSigningIn || isGoogleSigningIn}
           >
-            {loading ? (
+            {isGoogleSigningIn ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
               <GoogleIcon className="mr-2 h-4 w-4" />
             )}
             Sign in with Google
+          </Button>
+
+            <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-card px-2 text-muted-foreground">
+                    Or continue with
+                    </span>
+                </div>
+            </div>
+
+          <Button
+            variant="secondary"
+            className="w-full"
+            onClick={handleGuestSignIn}
+            disabled={loading || isGuestSigningIn || isGoogleSigningIn}
+          >
+            {isGuestSigningIn ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+                <User className="mr-2 h-4 w-4" />
+            )}
+            Login as Guest
           </Button>
         </CardContent>
       </Card>
