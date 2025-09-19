@@ -30,16 +30,7 @@ export default function LandingPage() {
     setItinerary(null);
     try {
       const result = await generatePersonalizedItinerary(data);
-      const aiResponseData = JSON.parse(result.itinerary);
-      
-      const combinedData = {
-        destination: data.destination,
-        duration: data.duration,
-        budget: data.budget,
-        ...aiResponseData,
-      };
-
-      const parsedItinerary = ItinerarySchema.parse(combinedData);
+      const parsedItinerary = ItinerarySchema.parse(result);
       setItinerary(parsedItinerary);
     } catch (error) {
       console.error('Failed to generate or parse itinerary:', error);

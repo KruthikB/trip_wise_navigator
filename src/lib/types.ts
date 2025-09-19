@@ -21,6 +21,18 @@ export const ItinerarySchema = z.object({
   itinerary: z.array(ItineraryDaySchema).describe('The day-by-day itinerary.'),
 });
 
+export const GeneratePersonalizedItineraryInputSchema = z.object({
+  destination: z.string().describe('The destination for the trip within India.'),
+  duration: z.number().describe('The duration of the trip in days.'),
+  budget: z.string().describe('The budget for the trip in INR (e.g., "₹50,000").'),
+  themes: z.array(z.string()).describe('The travel themes (e.g., ["heritage", "nightlife", "adventure"]).'),
+});
+export type GeneratePersonalizedItineraryInput = z.infer<typeof GeneratePersonalizedItineraryInputSchema>;
+
+export const GeneratePersonalizedItineraryOutputSchema = ItinerarySchema;
+export type GeneratePersonalizedItineraryOutput = z.infer<typeof GeneratePersonalizedItineraryOutputSchema>;
+
+
 export type Itinerary = z.infer<typeof ItinerarySchema>;
 export type ItineraryDay = z.infer<typeof ItineraryDaySchema>;
 export type ItineraryActivity = z.infer<typeof ItineraryActivitySchema>;

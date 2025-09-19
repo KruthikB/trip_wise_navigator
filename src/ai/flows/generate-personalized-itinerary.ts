@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview AI-powered personalized trip itinerary generator for domestic travel in India.
@@ -8,20 +9,12 @@
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
-
-const GeneratePersonalizedItineraryInputSchema = z.object({
-  destination: z.string().describe('The destination for the trip within India.'),
-  duration: z.number().describe('The duration of the trip in days.'),
-  budget: z.string().describe('The budget for the trip in INR (e.g., "₹50,000").'),
-  themes: z.array(z.string()).describe('The travel themes (e.g., ["heritage", "nightlife", "adventure"]).'),
-});
-export type GeneratePersonalizedItineraryInput = z.infer<typeof GeneratePersonalizedItineraryInputSchema>;
-
-const GeneratePersonalizedItineraryOutputSchema = z.object({
-  itinerary: z.string().describe('The generated trip itinerary in JSON format.'),
-});
-export type GeneratePersonalizedItineraryOutput = z.infer<typeof GeneratePersonalizedItineraryOutputSchema>;
+import {
+  GeneratePersonalizedItineraryInputSchema,
+  type GeneratePersonalizedItineraryInput,
+  GeneratePersonalizedItineraryOutputSchema,
+  type GeneratePersonalizedItineraryOutput,
+} from '@/lib/types';
 
 export async function generatePersonalizedItinerary(
   input: GeneratePersonalizedItineraryInput
@@ -40,7 +33,7 @@ Duration: {{{duration}}} days
 Budget: {{{budget}}} (Please assume this is in INR)
 Themes: {{#each themes}}{{{this}}}{{#unless @last}}, {{/unless}}{{/each}}
 
-The response must be a valid JSON object.
+The response must be a valid JSON object matching the output schema.
 The top-level JSON object must include:
 - "destination": a string matching the user's input.
 - "duration": a number matching the user's input.
