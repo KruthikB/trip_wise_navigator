@@ -17,23 +17,13 @@ import {
 import { Skeleton } from './ui/skeleton';
 import { Globe } from 'lucide-react';
 import { useLanguage } from '@/hooks/use-language';
-
-const languages = [
-    { code: 'en', name: 'English' },
-    { code: 'hi', name: 'Hindi' },
-    { code: 'bn', name: 'Bengali' },
-    { code: 'gu', name: 'Gujarati' },
-    { code: 'kn', name: 'Kannada' },
-    { code: 'ml', name: 'Malayalam' },
-    { code: 'mr', name: 'Marathi' },
-    { code: 'ta', name: 'Tamil' },
-    { code: 'te', name: 'Telugu' },
-    { code: 'ur', name: 'Urdu' },
-];
+import { useTranslation } from '@/hooks/use-translation';
+import { languages } from '@/lib/translations';
 
 export default function LandingHeader() {
   const { user, loading, signOut } = useAuth();
   const { language, setLanguage } = useLanguage();
+  const { t } = useTranslation();
 
   return (
     <>
@@ -64,7 +54,7 @@ export default function LandingHeader() {
                     </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>Select Language</DropdownMenuLabel>
+                    <DropdownMenuLabel>{t('selectLanguage')}</DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     {languages.map((lang) => (
                         <DropdownMenuItem
@@ -102,7 +92,7 @@ export default function LandingHeader() {
                             </DropdownMenuLabel>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={signOut}>
-                            Log out
+                            {t('logOut')}
                             </DropdownMenuItem>
                         </DropdownMenuContent>
                         </DropdownMenu>
@@ -110,10 +100,10 @@ export default function LandingHeader() {
                     ) : (
                     <>
                         <Button variant="outline" className="bg-transparent text-white border-white hover:bg-white hover:text-blue-600" asChild>
-                        <Link href="/login">Sign In</Link>
+                        <Link href="/login">{t('signIn')}</Link>
                         </Button>
                         <Button className="bg-white text-blue-600 hover:bg-white/90" asChild>
-                        <Link href="/login">Register</Link>
+                        <Link href="/login">{t('register')}</Link>
                         </Button>
                     </>
                     )}

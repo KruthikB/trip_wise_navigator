@@ -1,5 +1,4 @@
 
-
 'use client'
 
 import type { Itinerary } from '@/lib/types';
@@ -27,6 +26,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { useLanguage } from '@/hooks/use-language';
 import { translateText } from '@/ai/flows/translate-text';
 import { Loader2 } from 'lucide-react';
+import { useTranslation } from '@/hooks/use-translation';
 
 type ItineraryDisplayProps = {
   itinerary: Itinerary;
@@ -39,6 +39,7 @@ export default function ItineraryDisplay({ itinerary: originalItinerary, setItin
   const { user } = useAuth();
   const { language } = useLanguage();
   const [openDays, setOpenDays] = useState<string[]>(['day-1']);
+  const { t } = useTranslation();
 
   const [itinerary, setTranslatedItinerary] = useState<Itinerary>(originalItinerary);
   const [isTranslating, setIsTranslating] = useState(false);
@@ -87,7 +88,7 @@ export default function ItineraryDisplay({ itinerary: originalItinerary, setItin
 
       } catch (error) {
         console.error("Failed to translate itinerary", error);
-        toast({ variant: 'destructive', title: 'Translation Failed', description: 'Could not translate the itinerary.' });
+        toast({ variant: 'destructive', title: t('translationFailedTitle'), description: t('translationFailedDescription') });
         setTranslatedItinerary(originalItinerary); // Revert to original if translation fails
       } finally {
         setIsTranslating(false);
@@ -95,7 +96,7 @@ export default function ItineraryDisplay({ itinerary: originalItinerary, setItin
     };
 
     translateItineraryContent();
-  }, [language, originalItinerary, toast]);
+  }, [language, originalItinerary, toast, t]);
 
 
   const handleExport = () => {
@@ -114,8 +115,8 @@ export default function ItineraryDisplay({ itinerary: originalItinerary, setItin
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
     toast({
-      title: 'Link Copied!',
-      description: 'Itinerary link has been copied to your clipboard.',
+      title: t('linkCopiedTitle'),
+      description: t('linkCopiedDescription'),
     });
   };
 
@@ -123,21 +124,21 @@ export default function ItineraryDisplay({ itinerary: originalItinerary, setItin
     if (!user) {
         toast({
             variant: 'destructive',
-            title: 'Authentication Required',
-            description: 'You must be logged in to book a trip.',
+            title: t('authRequiredTitle'),
+            description: t('authRequiredDescription'),
         });
         return;
     }
     // In a real app, you'd call the booking API here.
     // For this demo, we'll just show a success message.
     toast({
-        title: 'Booking Confirmed!',
-        description: `Your trip to ${itinerary.destination} is confirmed. Happy travels!`,
+        title: t('bookingConfirmedTitle'),
+        description: t('bookingConfirmedDescription', { destination: itinerary.destination }),
     });
   };
 
   const handleWeatherAdjust = async (weather: 'rainy' | 'sunny') => {
-    toast({ title: 'Adjusting itinerary for ' + weather + ' weather...' });
+    toast({ title: t('adjustingItineraryTitle', { weather }) });
     try {
         const currentItineraryString = JSON.stringify(itinerary.itinerary);
         const result = await adjustItineraryBasedOnWeather({ itinerary: currentItineraryString, weatherCondition: weather });
@@ -158,11 +159,11 @@ export default function ItineraryDisplay({ itinerary: originalItinerary, setItin
         const parsedItinerary = ItinerarySchema.parse(updatedItinerary);
 
         setItinerary(parsedItinerary);
-        toast({ title: 'Itinerary Updated!', description: 'Your plan has been adjusted for the weather.' });
+        toast({ title: t('itineraryUpdatedTitle'), description: t('itineraryUpdatedDescription') });
 
     } catch (error) {
         console.error("Failed to adjust itinerary", error);
-        toast({ variant: 'destructive', title: 'Update Failed', description: 'Could not adjust the itinerary.' });
+        toast({ variant: 'destructive', title: t('updateFailedTitle'), description: t('updateFailedDescription') });
     }
   }
   
@@ -171,7 +172,7 @@ export default function ItineraryDisplay({ itinerary: originalItinerary, setItin
       <div className="flex h-[60vh] flex-col items-center justify-center rounded-lg border border-dashed">
         <Loader2 className="h-16 w-16 animate-spin text-primary" />
         <p className="mt-4 text-lg text-muted-foreground">
-          Translating your itinerary...
+          {t('translatingItinerary')}
         </p>
       </div>
     );
@@ -182,24 +183,24 @@ export default function ItineraryDisplay({ itinerary: originalItinerary, setItin
       <div className="flex flex-col space-y-1.5 p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h3 className="text-2xl font-semibold leading-none tracking-tight">Your Trip to {itinerary.destination}</h3>
-            <p className="text-sm text-muted-foreground">{itinerary.duration} days, est. budget {itinerary.budget}</p>
+            <h3 className="text-2xl font-semibold leading-none tracking-tight">{t('yourTripTo', { destination: itinerary.destination })}</h3>
+            <p className="text-sm text-muted-foreground">{t('tripDetails', { duration: itinerary.duration, budget: itinerary.budget })}</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline">Adjust for Weather</Button>
+                <Button variant="outline">{t('adjustForWeather')}</Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuLabel>Select Weather</DropdownMenuLabel>
+                <DropdownMenuLabel>{t('selectWeather')}</DropdownMenuLabel>
                 <DropdownMenuSeparator/>
-                <DropdownMenuItem onClick={() => handleWeatherAdjust('rainy')}><CloudDrizzle className='mr-2 h-4 w-4'/>Rainy</DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleWeatherAdjust('sunny')}><Sun className='mr-2 h-4 w-4'/>Sunny</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleWeatherAdjust('rainy')}><CloudDrizzle className='mr-2 h-4 w-4'/>{t('rainy')}</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleWeatherAdjust('sunny')}><Sun className='mr-2 h-4 w-4'/>{t('sunny')}</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
             <Button variant="outline" size="icon" onClick={handleShare}><Share2 className="h-4 w-4" /></Button>
             <Button variant="outline" size="icon" onClick={handleExport}><FileDown className="h-4 w-4" /></Button>
-            <Button onClick={handleBooking}><Briefcase className="mr-2 h-4 w-4" /> Book Now</Button>
+            <Button onClick={handleBooking}><Briefcase className="mr-2 h-4 w-4" /> {t('bookNow')}</Button>
           </div>
         </div>
       </div>
@@ -207,8 +208,8 @@ export default function ItineraryDisplay({ itinerary: originalItinerary, setItin
         <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!}>
           <Tabs defaultValue="itinerary">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="itinerary">Itinerary Details</TabsTrigger>
-              <TabsTrigger value="map">Map View</TabsTrigger>
+              <TabsTrigger value="itinerary">{t('itineraryDetails')}</TabsTrigger>
+              <TabsTrigger value="map">{t('mapView')}</TabsTrigger>
             </TabsList>
             <TabsContent value="itinerary">
               <div ref={itineraryContentRef} className="mt-4">

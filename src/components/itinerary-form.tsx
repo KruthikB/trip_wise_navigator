@@ -23,6 +23,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { useState } from 'react';
 import { suggestTripDetails } from '@/ai/flows/suggest-trip-details';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslation } from '@/hooks/use-translation';
 
 const formSchema = z.object({
   destination: z.string().min(2, { message: 'Destination must be at least 2 characters.' }),
@@ -50,6 +51,7 @@ export default function ItineraryForm({ onSubmit, isGenerating }: ItineraryFormP
   const [activeTab, setActiveTab] = useState('holidays');
   const [isSuggesting, setIsSuggesting] = useState(false);
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const handleFormSubmit = (values: z.infer<typeof formSchema>) => {
     onSubmit({
@@ -86,8 +88,8 @@ export default function ItineraryForm({ onSubmit, isGenerating }: ItineraryFormP
        console.error('Failed to get suggestion:', error);
       toast({
         variant: 'destructive',
-        title: 'Oh no! Something went wrong.',
-        description: 'We couldn\'t generate a surprise for you. Please try again.',
+        title: t('toastErrorTitle'),
+        description: t('surpriseErrorDescription'),
       });
     } finally {
       setIsSuggesting(false);
@@ -99,15 +101,15 @@ export default function ItineraryForm({ onSubmit, isGenerating }: ItineraryFormP
       <CardContent className="p-4">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-4 bg-muted">
-            <TabsTrigger value="holidays"><Briefcase className='mr-2'/>Holidays</TabsTrigger>
+            <TabsTrigger value="holidays"><Briefcase className='mr-2'/>{t('holidays')}</TabsTrigger>
             <TabsTrigger value="flights" onClick={() => handleTabLinkClick('https://www.easemytrip.com/flights.html')}>
-                <Plane className='mr-2'/>Flights
+                <Plane className='mr-2'/>{t('flights')}
             </TabsTrigger>
             <TabsTrigger value="hotels" onClick={() => handleTabLinkClick('https://www.easemytrip.com/hotels/')}>
-                <Hotel className='mr-2'/>Hotels
+                <Hotel className='mr-2'/>{t('hotels')}
             </TabsTrigger>
             <TabsTrigger value="deals" onClick={() => handleTabLinkClick('https://www.easemytrip.com/offers/holiday-deals.html')}>
-                <Tag className='mr-2'/>Holiday Deals
+                <Tag className='mr-2'/>{t('holidayDeals')}
             </TabsTrigger>
           </TabsList>
           <TabsContent value="holidays">
@@ -119,9 +121,9 @@ export default function ItineraryForm({ onSubmit, isGenerating }: ItineraryFormP
                     name="destination"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Destination</FormLabel>
+                        <FormLabel>{t('destination')}</FormLabel>
                         <FormControl>
-                          <Input placeholder="e.g., Goa, India" {...field} />
+                          <Input placeholder={t('destinationPlaceholder')} {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -132,7 +134,7 @@ export default function ItineraryForm({ onSubmit, isGenerating }: ItineraryFormP
                     name="duration"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Duration (days)</FormLabel>
+                        <FormLabel>{t('duration')}</FormLabel>
                         <FormControl>
                           <Input type="number" placeholder="e.g., 7" {...field} />
                         </FormControl>
@@ -145,7 +147,7 @@ export default function ItineraryForm({ onSubmit, isGenerating }: ItineraryFormP
                     name="budget"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Budget</FormLabel>
+                        <FormLabel>{t('budget')}</FormLabel>
                         <div className="flex gap-2">
                            <FormControl>
                             <Input placeholder="e.g., 50000" {...field} />
@@ -171,15 +173,15 @@ export default function ItineraryForm({ onSubmit, isGenerating }: ItineraryFormP
                   name="themes"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Interests & Themes</FormLabel>
+                      <FormLabel>{t('interestsAndThemes')}</FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="e.g., cultural heritage, adventure, nightlife, relaxing, museums..."
+                          placeholder={t('themesPlaceholder')}
                           {...field}
                         />
                       </FormControl>
                       <FormDescription>
-                        Separate themes with commas.
+                        {t('themesDescription')}
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -191,13 +193,13 @@ export default function ItineraryForm({ onSubmit, isGenerating }: ItineraryFormP
                     {isGenerating ? (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     ) : <WandSparkles className='mr-2'/>}
-                    Generate My Itinerary
+                    {t('generateItineraryButton')}
                   </Button>
                   <Button size="lg" variant="outline" className="flex-grow" onClick={handleSurpriseMe} disabled={isGenerating || isSuggesting}>
                     {isSuggesting ? (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     ) : <WandSparkles className='mr-2'/>}
-                     Surprise Me!
+                     {t('surpriseMeButton')}
                   </Button>
                 </div>
               </form>
