@@ -23,7 +23,7 @@ export type SuggestTripDetailsInput = z.infer<typeof SuggestTripDetailsInputSche
 const SuggestTripDetailsOutputSchema = z.object({
   destination: z.string().describe('The suggested destination in India.'),
   budget: z.string().describe('The suggested budget in INR.'),
-  duration: z.coerce.number().describe('The suggested duration in days.'),
+  duration: z.coerce.number().describe('The suggested duration in days as a number.'),
   theme: z.string().describe('The suggested theme.'),
 });
 
@@ -51,13 +51,13 @@ Inputs provided:
 Rules:
 1. If **destination** is missing → suggest one in India based on budget, duration, and theme.
 2. If **budget** is missing → suggest a realistic budget in INR based on destination, duration, and theme.
-3. If **duration** is missing → suggest an optimal trip duration based on destination, budget, and theme.
+3. If **duration** is missing → suggest an optimal trip duration in days (as a number) based on destination, budget, and theme.
 4. If **theme** is missing → suggest a theme that best fits the destination, budget, and duration.
    Example: Goa + 3 days + ₹20,000 → “Nightlife & Beaches.”
 5. If **all fields are missing** → suggest a complete recommended trip (destination, budget, duration, theme) within India.
 6. If **all fields are filled** → generate an alternative surprise suggestion with slightly different values (e.g., another destination in the same budget range or a different theme).
 7. Always return results in **India only**.
-8. Always return output in valid JSON format.
+8. Always return output in valid JSON format. The duration must be a number, not a string.
 `,
 });
 
