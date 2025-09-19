@@ -1,3 +1,4 @@
+
 'use client'
 
 import type { Itinerary } from '@/lib/types';
@@ -11,7 +12,6 @@ import { APIProvider } from '@vis.gl/react-google-maps';
 import { useRef } from 'react';
 import { exportToPdf } from '@/lib/export';
 import { useToast } from '@/hooks/use-toast';
-import { mockBookItinerary } from '@/app/actions/booking';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,6 +22,7 @@ import {
 } from '../ui/dropdown-menu';
 import { adjustItineraryBasedOnWeather } from '@/ai/flows/adjust-itinerary-based-on-weather';
 import { ItinerarySchema } from '@/lib/types';
+import { useAuth } from '@/hooks/use-auth';
 
 type ItineraryDisplayProps = {
   itinerary: Itinerary;
@@ -31,6 +32,7 @@ type ItineraryDisplayProps = {
 export default function ItineraryDisplay({ itinerary, setItinerary }: ItineraryDisplayProps) {
   const itineraryContentRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const handleExport = () => {
     if (itineraryContentRef.current) {
@@ -47,18 +49,47 @@ export default function ItineraryDisplay({ itinerary, setItinerary }: ItineraryD
   };
 
   const handleBooking = async () => {
-    const { success, message } = await mockBookItinerary(itinerary);
-    if (success) {
-      toast({
-        title: 'Booking Confirmed!',
-        description: message,
+    if (!user) {
+        toast({
+            variant: 'destructive',
+            title: 'Authentication Required',
+            description: 'You must be logged in to book a trip.',
+        });
+        return;
+    }
+
+    try {
+      const idToken = await user.getIdToken();
+      const response = await fetch('/api/bookings', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`,
+        },
+        body: JSON.stringify(itinerary),
       });
-    } else {
-      toast({
-        variant: 'destructive',
-        title: 'Booking Failed',
-        description: message,
-      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+          toast({
+              title: 'Booking Confirmed!',
+              description: result.message,
+          });
+      } else {
+          toast({
+              variant: 'destructive',
+              title: 'Booking Failed',
+              description: result.message || 'An unknown error occurred.',
+          });
+      }
+    } catch (error) {
+        console.error('Booking failed:', error);
+        toast({
+            variant: 'destructive',
+            title: 'Booking Failed',
+            description: 'An unexpected error occurred.',
+        });
     }
   };
 

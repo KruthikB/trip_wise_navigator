@@ -15,7 +15,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-import { getBookings } from '@/app/actions/firestore-actions';
 import type { Booking } from '@/lib/types';
 import { Loader2, Inbox } from 'lucide-react';
 import ItineraryDayView from './itinerary/itinerary-day-view';
@@ -38,23 +37,18 @@ export default function MyBookingsDialog({ open, onOpenChange }: MyBookingsDialo
         setLoading(true);
         try {
           const idToken = await user.getIdToken();
-          
-          // Temporarily override fetch to add the auth header
-          const originalFetch = global.fetch;
-          (global as any).fetch = async (url: any, options: any) => {
-            const headers = new Headers(options?.headers);
-            headers.set('Authorization', `Bearer ${idToken}`);
-            const newOptions = { ...options, headers };
-            return originalFetch(url, newOptions);
-          };
+          const response = await fetch('/api/bookings', {
+            headers: {
+              'Authorization': `Bearer ${idToken}`,
+            },
+          });
 
-          try {
-            const result = await getBookings();
-            setBookings(result);
-          } finally {
-             // Restore original fetch
-            (global as any).fetch = originalFetch;
+          if (!response.ok) {
+            throw new Error('Failed to fetch bookings');
           }
+
+          const result = await response.json();
+          setBookings(result);
 
         } catch (error) {
           console.error("Failed to fetch bookings:", error);
