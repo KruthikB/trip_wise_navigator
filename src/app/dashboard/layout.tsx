@@ -1,10 +1,8 @@
-'use client';
 
-import { useAuth } from '@/hooks/use-auth';
+'use client';
 import { useRouter } from 'next/navigation';
 import { useEffect, type ReactNode } from 'react';
-import { Loader2 } from 'lucide-react';
-import DashboardHeader from '@/components/dashboard-header';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const { user, loading } = useAuth();
@@ -12,22 +10,16 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!loading && !user) {
-      router.push('/login?redirect=/dashboard');
+      router.push('/login?redirect=/');
     }
   }, [user, loading, router]);
 
+  // The actual dashboard content is now on the main page.
+  // This layout can be simplified or removed if it's no longer needed.
+  // For now, it just acts as a guard.
   if (loading || !user) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <Loader2 className="h-16 w-16 animate-spin text-primary" />
-      </div>
-    );
+    return null; // Or a loading spinner
   }
 
-  return (
-    <div className="flex min-h-screen flex-col">
-      <DashboardHeader />
-      <main className="flex-1">{children}</main>
-    </div>
-  );
+  return <>{children}</>;
 }

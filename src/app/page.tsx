@@ -1,59 +1,106 @@
-import Image from 'next/image';
-import Link from 'next/link';
-import { Button } from '@/components/ui/button';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
+
+'use client';
+
+import { useState } from 'react';
+import ItineraryDisplay from '@/components/itinerary/itinerary-display';
+import { useToast } from '@/hooks/use-toast';
+import type { Itinerary } from '@/lib/types';
+import { ItinerarySchema } from '@/lib/types';
+import { Loader2, Sparkles } from 'lucide-react';
+import ItineraryForm from '@/components/itinerary-form';
+import { generatePersonalizedItinerary } from '@/ai/flows/generate-personalized-itinerary';
 import LandingHeader from '@/components/landing-header';
-import { ArrowRight } from 'lucide-react';
 
 export default function LandingPage() {
-  const heroImage = PlaceHolderImages.find((img) => img.id === 'hero');
+  const [itinerary, setItinerary] = useState<Itinerary | null>(null);
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+
+  const handleItineraryGeneration = async (data: {
+    destination: string;
+    duration: number;
+    budget: string;
+    themes: string[];
+  }) => {
+    setLoading(true);
+    setItinerary(null);
+    try {
+      const result = await generatePersonalizedItinerary(data);
+      const aiResponseData = JSON.parse(result.itinerary);
+      
+      const combinedData = {
+        destination: data.destination,
+        duration: data.duration,
+        budget: data.budget,
+        ...aiResponseData,
+      };
+
+      const parsedItinerary = ItinerarySchema.parse(combinedData);
+      setItinerary(parsedItinerary);
+    } catch (error) {
+      console.error('Failed to generate or parse itinerary:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Oh no! Something went wrong.',
+        description: 'We couldn\'t generate your itinerary. Please try again.',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-background">
       <LandingHeader />
       <main className="flex-1">
-        <section className="relative h-[60vh] w-full md:h-[70vh]">
-          {heroImage && (
-            <Image
-              src={heroImage.imageUrl}
-              alt={heroImage.description}
-              fill
-              className="object-cover"
-              priority
-              data-ai-hint={heroImage.imageHint}
-            />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/20 to-transparent" />
-          <div className="absolute inset-0 flex items-center justify-center text-center">
-            <div className="relative z-10 mx-4 max-w-3xl rounded-lg bg-background/50 p-8 backdrop-blur-sm">
-              <h1 className="font-headline text-4xl font-bold tracking-tight text-foreground sm:text-5xl md:text-6xl">
-                Your Personal AI Planner for India
-              </h1>
-              <p className="mt-6 text-lg leading-8 text-foreground/80">
-                Craft your perfect domestic journey with TripWise Navigator. AI-powered itineraries, real-time adjustments, and seamless planning for travel across India.
-              </p>
-              <div className="mt-10 flex items-center justify-center gap-x-6">
-                <Button asChild size="lg">
-                  <Link href="/dashboard">
-                    Get Started <ArrowRight className="ml-2 h-5 w-5" />
-                  </Link>
-                </Button>
-              </div>
-            </div>
+        <section className="bg-[#0070F3] py-20 text-white">
+          <div className="container mx-auto max-w-4xl text-center">
+            <h1 className="font-headline text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
+              Your AI-Powered Personalized Trip Planner
+            </h1>
+            <p className="mt-6 text-lg leading-8 text-white/80">
+              Craft your perfect journey. Just tell us your destination, budget, and interests, and let our AI handle the rest.
+            </p>
           </div>
         </section>
-        <section className="py-24 sm:py-32">
-          <div className="mx-auto max-w-7xl px-6 lg:px-8">
-            <div className="mx-auto max-w-2xl lg:text-center">
-              <p className="text-base font-semibold leading-7 text-primary">Everything you need to explore India</p>
-              <h2 className="mt-2 font-headline text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-                Plan smarter, travel better
-              </h2>
-              <p className="mt-6 text-lg leading-8 text-muted-foreground">
-                TripWise leverages cutting-edge AI to build itineraries that match your style and budget, making every trip across India unforgettable.
-              </p>
-            </div>
+
+        <section className="-mt-16">
+          <div className="container mx-auto max-w-4xl">
+             <ItineraryForm
+                onSubmit={handleItineraryGeneration}
+                isGenerating={loading}
+              />
           </div>
+        </section>
+
+        <section className="py-16">
+            <div className="container mx-auto max-w-7xl">
+            {loading && (
+                <div className="flex h-[60vh] flex-col items-center justify-center rounded-lg border border-dashed">
+                <Loader2 className="h-16 w-16 animate-spin text-primary" />
+                <p className="mt-4 text-lg text-muted-foreground">
+                    Crafting your perfect trip...
+                </p>
+                </div>
+            )}
+            {itinerary && (
+                <ItineraryDisplay 
+                itinerary={itinerary}
+                setItinerary={setItinerary}
+                />
+            )}
+            {!loading && !itinerary && (
+                <div className="flex h-[60vh] flex-col items-center justify-center rounded-lg border border-dashed bg-muted/50">
+                <div className="text-center">
+                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+                    <Sparkles className="h-8 w-8 text-primary" />
+                    </div>
+                    <h2 className="text-2xl font-bold tracking-tight">Your Itinerary Awaits</h2>
+                    <p className="mt-2 text-muted-foreground">Fill out the form above to generate your personalized travel plan.</p>
+                </div>
+                </div>
+            )}
+            </div>
         </section>
       </main>
     </div>

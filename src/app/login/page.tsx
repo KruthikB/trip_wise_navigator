@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useAuth } from '@/hooks/use-auth';
@@ -12,7 +13,7 @@ export default function LoginPage() {
   const { user, loading, signInWithGoogle, signInAsGuest } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirect = searchParams.get('redirect') || '/dashboard';
+  const redirect = searchParams.get('redirect') || '/';
   const [isClient, setIsClient] = useState(false);
   const [isGuestSigningIn, setIsGuestSigningIn] = useState(false);
   const [isGoogleSigningIn, setIsGoogleSigningIn] = useState(false);
@@ -30,13 +31,13 @@ export default function LoginPage() {
   const handleGoogleSignIn = async () => {
     setIsGoogleSigningIn(true);
     await signInWithGoogle();
-    setIsGoogleSigningIn(false);
+    // No need to set to false, as the page will redirect on success
   }
 
   const handleGuestSignIn = async () => {
     setIsGuestSigningIn(true);
     await signInAsGuest();
-    setIsGuestSigningIn(false);
+    // No need to set to false, as the page will redirect on success
   }
 
   if (!isClient || loading || user) {
@@ -58,14 +59,14 @@ export default function LoginPage() {
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">Welcome</CardTitle>
-          <CardDescription>Sign in or continue as a guest to plan your next adventure.</CardDescription>
+          <CardDescription>Sign in or register to plan your next adventure.</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-4">
           <Button
             variant="outline"
             className="w-full"
             onClick={handleGoogleSignIn}
-            disabled={loading || isGuestSigningIn || isGoogleSigningIn}
+            disabled={isGuestSigningIn || isGoogleSigningIn}
           >
             {isGoogleSigningIn ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -81,7 +82,7 @@ export default function LoginPage() {
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
                     <span className="bg-card px-2 text-muted-foreground">
-                    Or continue with
+                    Or continue as
                     </span>
                 </div>
             </div>
@@ -90,14 +91,14 @@ export default function LoginPage() {
             variant="secondary"
             className="w-full"
             onClick={handleGuestSignIn}
-            disabled={loading || isGuestSigningIn || isGoogleSigningIn}
+            disabled={isGuestSigningIn || isGoogleSigningIn}
           >
             {isGuestSigningIn ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             ) : (
                 <User className="mr-2 h-4 w-4" />
             )}
-            Login as Guest
+            Guest
           </Button>
         </CardContent>
       </Card>

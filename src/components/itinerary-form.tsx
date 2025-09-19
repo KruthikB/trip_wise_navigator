@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
@@ -14,29 +15,21 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2 } from 'lucide-react';
-
-const themes = [
-  { id: 'heritage', label: 'Heritage' },
-  { id: 'nightlife', label: 'Nightlife' },
-  { id: 'adventure', label: 'Adventure' },
-  { id: 'relaxation', label: 'Relaxation' },
-  { id: 'foodie', label: 'Foodie' },
-];
+import { Card, CardContent } from '@/components/ui/card';
+import { Loader2, WandSparkles, Briefcase, Plane, Hotel, Tag } from 'lucide-react';
+import { Textarea } from './ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 
 const formSchema = z.object({
   destination: z.string().min(2, { message: 'Destination must be at least 2 characters.' }),
   duration: z.coerce.number().int().min(1, { message: 'Duration must be at least 1 day.' }),
   budget: z.string().min(1, { message: 'Please enter a budget.' }),
-  themes: z.array(z.string()).refine((value) => value.some((item) => item), {
-    message: 'You have to select at least one theme.',
-  }),
+  themes: z.string().min(2, { message: 'Please enter at least one interest or theme.' }),
 });
 
 type ItineraryFormProps = {
-  onSubmit: (data: z.infer<typeof formSchema>) => void;
+  onSubmit: (data: z.infer<typeof formSchema> & { themes: string[] }) => void;
   isGenerating: boolean;
 };
 
@@ -44,118 +37,121 @@ export default function ItineraryForm({ onSubmit, isGenerating }: ItineraryFormP
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      destination: '',
-      duration: 3,
-      budget: '₹50000',
-      themes: [],
+      destination: 'Goa, India',
+      duration: 7,
+      budget: '50000',
+      themes: 'cultural heritage, adventure, nightlife, relaxing, museums',
     },
   });
 
+  const handleFormSubmit = (values: z.infer<typeof formSchema>) => {
+    onSubmit({
+      ...values,
+      themes: values.themes.split(',').map(theme => theme.trim()).filter(Boolean),
+    });
+  }
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Create Your Trip in India</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <FormField
-              control={form.control}
-              name="destination"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Destination in India</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g., Goa, Kerala" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="duration"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Duration (days)</FormLabel>
-                    <FormControl>
-                      <Input type="number" min="1" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="budget"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Budget (INR)</FormLabel>
-                    <FormControl>
-                      <Input placeholder="e.g., ₹50000" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <FormField
-              control={form.control}
-              name="themes"
-              render={() => (
-                <FormItem>
-                  <div className="mb-4">
-                    <FormLabel className="text-base">Travel Themes</FormLabel>
-                    <FormDescription>
-                      Select what you'd like to experience.
-                    </FormDescription>
-                  </div>
-                  <div className="space-y-2">
-                    {themes.map((item) => (
-                      <FormField
-                        key={item.id}
-                        control={form.control}
-                        name="themes"
-                        render={({ field }) => (
-                          <FormItem
-                            key={item.id}
-                            className="flex flex-row items-start space-x-3 space-y-0"
-                          >
-                            <FormControl>
-                              <Checkbox
-                                checked={field.value?.includes(item.id)}
-                                onCheckedChange={(checked) => {
-                                  return checked
-                                    ? field.onChange([...field.value, item.id])
-                                    : field.onChange(
-                                        field.value?.filter(
-                                          (value) => value !== item.id
-                                        )
-                                      );
-                                }}
-                              />
-                            </FormControl>
-                            <FormLabel className="font-normal">
-                              {item.label}
-                            </FormLabel>
-                          </FormItem>
-                        )}
-                      />
-                    ))}
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button type="submit" className="w-full" disabled={isGenerating}>
-              {isGenerating ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : null}
-              Generate Itinerary
-            </Button>
-          </form>
-        </Form>
+    <Card className="shadow-lg">
+      <CardContent className="p-4">
+        <Tabs defaultValue="holidays">
+          <TabsList className="grid w-full grid-cols-4 bg-muted">
+            <TabsTrigger value="holidays"><Briefcase className='mr-2'/>Holidays</TabsTrigger>
+            <TabsTrigger value="flights" disabled><Plane className='mr-2'/>Flights</TabsTrigger>
+            <TabsTrigger value="hotels" disabled><Hotel className='mr-2'/>Hotels</TabsTrigger>
+            <TabsTrigger value="deals" disabled><Tag className='mr-2'/>Holiday Deals</TabsTrigger>
+          </TabsList>
+          <TabsContent value="holidays">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6 pt-6">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                  <FormField
+                    control={form.control}
+                    name="destination"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Destination</FormLabel>
+                        <FormControl>
+                          <Input placeholder="e.g., Paris, France" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="duration"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Duration (days)</FormLabel>
+                        <FormControl>
+                          <Input type="number" placeholder="e.g., 7" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="budget"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Budget</FormLabel>
+                        <div className="flex gap-2">
+                           <FormControl>
+                            <Input placeholder="e.g., 1500" {...field} />
+                          </FormControl>
+                          <Select defaultValue="INR">
+                            <SelectTrigger className="w-[100px]">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="INR">INR</SelectItem>
+                              <SelectItem value="USD">USD</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="themes"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Interests & Themes</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="e.g., cultural heritage, adventure, nightlife, relaxing, museums..."
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        Separate themes with commas.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="flex flex-wrap items-center gap-4 pt-4">
+                  <Button type="submit" size="lg" className="flex-grow bg-[#FF5722] hover:bg-[#E64A19] text-white" disabled={isGenerating}>
+                    {isGenerating ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : <WandSparkles className='mr-2'/>}
+                    Generate My Itinerary
+                  </Button>
+                  <Button size="lg" variant="outline" className="flex-grow" disabled>
+                    <WandSparkles className='mr-2'/> Surprise Me!
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </TabsContent>
+        </Tabs>
       </CardContent>
     </Card>
   );

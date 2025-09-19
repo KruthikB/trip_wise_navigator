@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -13,33 +14,35 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
+import { Skeleton } from './ui/skeleton';
 
 export default function LandingHeader() {
   const { user, loading, signOut } = useAuth();
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 items-center">
+    <header className="absolute top-0 z-50 w-full bg-transparent">
+      <div className="container flex h-20 items-center text-white">
         <div className="mr-4 flex">
           <Link href="/" className="mr-6 flex items-center space-x-2">
-            <TripWiseLogo className="h-6 w-6 text-primary" />
-            <span className="font-bold sm:inline-block">
-              TripWise Navigator
+            <TripWiseLogo className="h-8 w-8" />
+            <span className="text-2xl font-bold sm:inline-block">
+              TripWise
             </span>
           </Link>
         </div>
         <div className="flex flex-1 items-center justify-end space-x-2">
           {loading ? (
-            <div className="h-8 w-20 animate-pulse rounded-md bg-muted" />
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-10 w-20" />
+              <Skeleton className="h-10 w-24" />
+              <Skeleton className="h-10 w-10 rounded-full" />
+            </div>
           ) : user ? (
             <>
-              <Button variant="ghost" asChild>
-                <Link href="/dashboard">Dashboard</Link>
-              </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                    <Avatar className="h-8 w-8">
+                  <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                    <Avatar className="h-10 w-10 border-2 border-white">
                       <AvatarImage src={user.photoURL ?? ''} alt={user.displayName ?? ''} />
                       <AvatarFallback>
                         {user.displayName?.charAt(0) ?? user.email?.charAt(0)}
@@ -57,6 +60,9 @@ export default function LandingHeader() {
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
+                   <DropdownMenuItem onClick={() => window.location.href='/dashboard'}>
+                    Dashboard
+                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={signOut}>
                     Log out
                   </DropdownMenuItem>
@@ -64,9 +70,14 @@ export default function LandingHeader() {
               </DropdownMenu>
             </>
           ) : (
-            <Button asChild>
-              <Link href="/login">Login</Link>
-            </Button>
+            <>
+              <Button variant="outline" className="bg-transparent text-white border-white hover:bg-white hover:text-blue-600" asChild>
+                <Link href="/login">Sign In</Link>
+              </Button>
+              <Button className="bg-white text-blue-600 hover:bg-white/90" asChild>
+                 <Link href="/login">Register</Link>
+              </Button>
+            </>
           )}
         </div>
       </div>
