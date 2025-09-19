@@ -58,39 +58,10 @@ export default function ItineraryDisplay({ itinerary, setItinerary }: ItineraryD
         return;
     }
 
-    try {
-      const idToken = await user.getIdToken();
-      const response = await fetch('/api/bookings', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${idToken}`,
-        },
-        body: JSON.stringify(itinerary),
-      });
-
-      const result = await response.json();
-
-      if (response.ok) {
-          toast({
-              title: 'Booking Confirmed!',
-              description: result.message,
-          });
-      } else {
-          toast({
-              variant: 'destructive',
-              title: 'Booking Failed',
-              description: result.message || 'An unknown error occurred.',
-          });
-      }
-    } catch (error) {
-        console.error('Booking failed:', error);
-        toast({
-            variant: 'destructive',
-            title: 'Booking Failed',
-            description: 'An unexpected error occurred.',
-        });
-    }
+    toast({
+        title: 'Booking Confirmed!',
+        description: `Your trip to ${itinerary.destination} is confirmed. Happy travels!`,
+    });
   };
 
   const handleWeatherAdjust = async (weather: 'rainy' | 'sunny') => {

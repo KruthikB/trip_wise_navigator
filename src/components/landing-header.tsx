@@ -15,13 +15,9 @@ import {
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 import { Skeleton } from './ui/skeleton';
-import MyBookingsDialog from './my-bookings-dialog';
-import { useState } from 'react';
-import { Briefcase } from 'lucide-react';
 
 export default function LandingHeader() {
   const { user, loading, signOut } = useAuth();
-  const [isBookingsOpen, setIsBookingsOpen] = useState(false);
 
   return (
     <>
@@ -65,11 +61,6 @@ export default function LandingHeader() {
                       </div>
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => setIsBookingsOpen(true)}>
-                      <Briefcase className="mr-2 h-4 w-4" />
-                      My Bookings
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={signOut}>
                       Log out
                     </DropdownMenuItem>
@@ -89,7 +80,6 @@ export default function LandingHeader() {
           </div>
         </div>
       </header>
-      {user && <MyBookingsDialog open={isBookingsOpen} onOpenChange={setIsBookingsOpen} />}
     </>
   );
 }
