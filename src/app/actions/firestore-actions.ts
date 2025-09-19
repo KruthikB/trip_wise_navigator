@@ -40,7 +40,7 @@ export async function saveBooking(itineraryData: Itinerary): Promise<{ success: 
         };
 
         await bookingRef.set(newBooking);
-        revalidatePath('/dashboard'); // Or any other relevant path
+        revalidatePath('/'); 
         return { success: true, message: 'Booking saved successfully' };
     } catch (error) {
         console.error('Error saving booking: ', error);

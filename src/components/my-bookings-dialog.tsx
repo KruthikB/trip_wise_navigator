@@ -18,7 +18,6 @@ import {
 import { getBookings } from '@/app/actions/firestore-actions';
 import type { Booking } from '@/lib/types';
 import { Loader2, Inbox } from 'lucide-react';
-import { Button } from './ui/button';
 import ItineraryDayView from './itinerary/itinerary-day-view';
 import { useAuth } from '@/hooks/use-auth';
 import { ScrollArea } from './ui/scroll-area';
@@ -38,34 +37,25 @@ export default function MyBookingsDialog({ open, onOpenChange }: MyBookingsDialo
       if (open && user) {
         setLoading(true);
         try {
-          // We need to pass the auth token to the server action
-          const token = await user.getIdToken();
+          const idToken = await user.getIdToken();
           
-          // This is a workaround to make the server action aware of the token.
-          // In a real app with proper state management or context, you might handle this differently.
-          const bookings = await getBookings.apply(null, [
-             { headers: { Authorization: `Bearer ${token}` } } as any
-          ]);
-
-          // The above apply is a bit of a hack. A better way would be to create a wrapper function.
-          const fetchWithAuth = async () => {
-            const idToken = await user.getIdToken();
-            const originalFetch = global.fetch;
-            (global as any).fetch = (url: any, options: any) => {
-              const headers = new Headers(options.headers);
-              headers.set('Authorization', `Bearer ${idToken}`);
-              const newOptions = { ...options, headers };
-              return originalFetch(url, newOptions);
-            };
-            try {
-              return await getBookings();
-            } finally {
-              (global as any).fetch = originalFetch; // cleanup
-            }
+          // Temporarily override fetch to add the auth header
+          const originalFetch = global.fetch;
+          (global as any).fetch = async (url: any, options: any) => {
+            const headers = new Headers(options?.headers);
+            headers.set('Authorization', `Bearer ${idToken}`);
+            const newOptions = { ...options, headers };
+            return originalFetch(url, newOptions);
           };
-          const result = await fetchWithAuth();
 
-          setBookings(result);
+          try {
+            const result = await getBookings();
+            setBookings(result);
+          } finally {
+             // Restore original fetch
+            (global as any).fetch = originalFetch;
+          }
+
         } catch (error) {
           console.error("Failed to fetch bookings:", error);
         } finally {
