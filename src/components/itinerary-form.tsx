@@ -20,7 +20,7 @@ import { Loader2, WandSparkles, Briefcase, Plane, Hotel, Tag } from 'lucide-reac
 import { Textarea } from './ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import Link from 'next/link';
+import { useState } from 'react';
 
 const formSchema = z.object({
   destination: z.string().min(2, { message: 'Destination must be at least 2 characters.' }),
@@ -45,6 +45,8 @@ export default function ItineraryForm({ onSubmit, isGenerating }: ItineraryFormP
     },
   });
 
+  const [activeTab, setActiveTab] = useState('holidays');
+
   const handleFormSubmit = (values: z.infer<typeof formSchema>) => {
     onSubmit({
       ...values,
@@ -52,20 +54,25 @@ export default function ItineraryForm({ onSubmit, isGenerating }: ItineraryFormP
     });
   }
 
+  const handleTabLinkClick = (url: string) => {
+    window.open(url, '_blank');
+    setActiveTab('holidays');
+  };
+
   return (
     <Card className="shadow-lg">
       <CardContent className="p-4">
-        <Tabs defaultValue="holidays">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-4 bg-muted">
             <TabsTrigger value="holidays"><Briefcase className='mr-2'/>Holidays</TabsTrigger>
-            <TabsTrigger value="flights" asChild>
-                <Link href="https://www.easemytrip.com/flights.html" target="_blank"><Plane className='mr-2'/>Flights</Link>
+            <TabsTrigger value="flights" onClick={() => handleTabLinkClick('https://www.easemytrip.com/flights.html')}>
+                <Plane className='mr-2'/>Flights
             </TabsTrigger>
-            <TabsTrigger value="hotels" asChild>
-                <Link href="https://www.easemytrip.com/hotels/" target="_blank"><Hotel className='mr-2'/>Hotels</Link>
+            <TabsTrigger value="hotels" onClick={() => handleTabLinkClick('https://www.easemytrip.com/hotels/')}>
+                <Hotel className='mr-2'/>Hotels
             </TabsTrigger>
-            <TabsTrigger value="deals" asChild>
-                <Link href="https://www.easemytrip.com/offers/holiday-deals.html" target="_blank"><Tag className='mr-2'/>Holiday Deals</Link>
+            <TabsTrigger value="deals" onClick={() => handleTabLinkClick('https://www.easemytrip.com/offers/holiday-deals.html')}>
+                <Tag className='mr-2'/>Holiday Deals
             </TabsTrigger>
           </TabsList>
           <TabsContent value="holidays">
