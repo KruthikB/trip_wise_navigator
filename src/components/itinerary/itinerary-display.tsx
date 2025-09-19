@@ -65,11 +65,11 @@ export default function ItineraryDisplay({ itinerary: originalItinerary, setItin
         };
 
         const result = await translateText({
-          content: JSON.stringify(translatableContent),
+          content: translatableContent,
           targetLanguage: language,
         });
 
-        const translatedContent = JSON.parse(result.translatedContent);
+        const translatedContent = result.translatedContent;
 
         const newItinerary: Itinerary = {
           ...originalItinerary,
