@@ -46,7 +46,7 @@ export default function ItineraryForm({ onSubmit, isGenerating }: ItineraryFormP
     defaultValues: {
       destination: '',
       duration: 3,
-      budget: '$1000',
+      budget: '₹50000',
       themes: [],
     },
   });
@@ -54,7 +54,7 @@ export default function ItineraryForm({ onSubmit, isGenerating }: ItineraryFormP
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Create Your Trip</CardTitle>
+        <CardTitle>Create Your Trip in India</CardTitle>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -64,9 +64,9 @@ export default function ItineraryForm({ onSubmit, isGenerating }: ItineraryFormP
               name="destination"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Destination</FormLabel>
+                  <FormLabel>Destination in India</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., Paris, France" {...field} />
+                    <Input placeholder="e.g., Goa, Kerala" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -91,9 +91,9 @@ export default function ItineraryForm({ onSubmit, isGenerating }: ItineraryFormP
                 name="budget"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Budget</FormLabel>
+                    <FormLabel>Budget (INR)</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g., $1000" {...field} />
+                      <Input placeholder="e.g., ₹50000" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

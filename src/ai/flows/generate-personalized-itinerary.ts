@@ -1,8 +1,8 @@
 'use server';
 /**
- * @fileOverview AI-powered personalized trip itinerary generator.
+ * @fileOverview AI-powered personalized trip itinerary generator for domestic travel in India.
  *
- * - generatePersonalizedItinerary - A function that takes destination, trip duration, budget, and themes to generate a personalized itinerary.
+ * - generatePersonalizedItinerary - A function that takes destination, trip duration, budget, and themes to generate a personalized itinerary within India.
  * - GeneratePersonalizedItineraryInput - The input type for the generatePersonalizedItinerary function.
  * - GeneratePersonalizedItineraryOutput - The return type for the generatePersonalizedItinerary function.
  */
@@ -11,9 +11,9 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const GeneratePersonalizedItineraryInputSchema = z.object({
-  destination: z.string().describe('The destination for the trip.'),
+  destination: z.string().describe('The destination for the trip within India.'),
   duration: z.number().describe('The duration of the trip in days.'),
-  budget: z.string().describe('The budget for the trip (e.g., "$1000", "5000 INR").'),
+  budget: z.string().describe('The budget for the trip in INR (e.g., "₹50,000").'),
   themes: z.array(z.string()).describe('The travel themes (e.g., ["heritage", "nightlife", "adventure"]).'),
 });
 export type GeneratePersonalizedItineraryInput = z.infer<typeof GeneratePersonalizedItineraryInputSchema>;
@@ -33,11 +33,11 @@ const prompt = ai.definePrompt({
   name: 'generatePersonalizedItineraryPrompt',
   input: {schema: GeneratePersonalizedItineraryInputSchema},
   output: {schema: GeneratePersonalizedItineraryOutputSchema},
-  prompt: `You are an expert travel planner. Generate a personalized trip itinerary in JSON format based on the following information:
+  prompt: `You are an expert travel planner specializing in domestic travel within India. Generate a personalized trip itinerary in JSON format based on the following information:
 
-Destination: {{{destination}}}
+Destination: {{{destination}}}, India
 Duration: {{{duration}}} days
-Budget: {{{budget}}}
+Budget: {{{budget}}} (Please assume this is in INR)
 Themes: {{#each themes}}{{{this}}}{{#unless @last}}, {{/unless}}{{/each}}
 
 The response must be a valid JSON object.
@@ -56,9 +56,9 @@ Each activity object in the "activities" array must include:
 - "placeName": a string for the name of the place or activity.
 - "description": a string describing the activity.
 - "travelTime": an optional string for estimated travel time.
-- "cost": an optional string for the estimated cost.
+- "cost": an optional string for the estimated cost in INR.
 
-Do not omit any of the required fields. Do not include any explanations or conversational text. Only provide the raw JSON. If a theme is not feasible, choose a reasonable alternative.`,
+Do not omit any of the required fields. All locations and activities must be within India. Do not include any explanations or conversational text. Only provide the raw JSON. If a theme is not feasible, choose a reasonable alternative suitable for the Indian destination.`,
 });
 
 const generatePersonalizedItineraryFlow = ai.defineFlow(
