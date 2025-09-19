@@ -47,7 +47,7 @@ export default function ItineraryDisplay({ itinerary, setItinerary }: ItineraryD
   };
 
   const handleBooking = async () => {
-    const { success, message } = await mockBookItinerary(itinerary.destination);
+    const { success, message } = await mockBookItinerary(itinerary);
     if (success) {
       toast({
         title: 'Booking Confirmed!',

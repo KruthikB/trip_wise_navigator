@@ -21,6 +21,13 @@ export const ItinerarySchema = z.object({
   itinerary: z.array(ItineraryDaySchema).describe('The day-by-day itinerary.'),
 });
 
+export const BookingSchema = ItinerarySchema.extend({
+  id: z.string(),
+  bookingDate: z.string(),
+  userId: z.string(),
+});
+
 export type Itinerary = z.infer<typeof ItinerarySchema>;
 export type ItineraryDay = z.infer<typeof ItineraryDaySchema>;
 export type ItineraryActivity = z.infer<typeof ItineraryActivitySchema>;
+export type Booking = z.infer<typeof BookingSchema>;
