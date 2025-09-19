@@ -25,7 +25,17 @@ export default function DashboardPage() {
     try {
       const result = await generatePersonalizedItinerary(data);
       // The AI might return a string that needs parsing.
-      const parsedItinerary = ItinerarySchema.parse(JSON.parse(result.itinerary));
+      const aiResponseData = JSON.parse(result.itinerary);
+      
+      // Combine form data with AI response for robustness
+      const combinedData = {
+        destination: data.destination,
+        duration: data.duration,
+        budget: data.budget,
+        ...aiResponseData,
+      };
+
+      const parsedItinerary = ItinerarySchema.parse(combinedData);
       setItinerary(parsedItinerary);
     } catch (error) {
       console.error('Failed to generate or parse itinerary:', error);
