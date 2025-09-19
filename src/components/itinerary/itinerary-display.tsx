@@ -10,7 +10,7 @@ import { Accordion } from '@/components/ui/accordion';
 import ItineraryDayView from './itinerary-day-view';
 import MapView from './map-view';
 import { APIProvider } from '@vis.gl/react-google-maps';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { exportToPdf } from '@/lib/export';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -24,17 +24,79 @@ import {
 import { adjustItineraryBasedOnWeather } from '@/ai/flows/adjust-itinerary-based-on-weather';
 import { ItinerarySchema } from '@/lib/types';
 import { useAuth } from '@/hooks/use-auth';
+import { useLanguage } from '@/hooks/use-language';
+import { translateText } from '@/ai/flows/translate-text';
+import { Loader2 } from 'lucide-react';
 
 type ItineraryDisplayProps = {
   itinerary: Itinerary;
   setItinerary: React.Dispatch<React.SetStateAction<Itinerary | null>>;
 };
 
-export default function ItineraryDisplay({ itinerary, setItinerary }: ItineraryDisplayProps) {
+export default function ItineraryDisplay({ itinerary: originalItinerary, setItinerary }: ItineraryDisplayProps) {
   const itineraryContentRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const { user } = useAuth();
+  const { language } = useLanguage();
   const [openDays, setOpenDays] = useState<string[]>(['day-1']);
+
+  const [itinerary, setTranslatedItinerary] = useState<Itinerary>(originalItinerary);
+  const [isTranslating, setIsTranslating] = useState(false);
+
+  useEffect(() => {
+    const translateItineraryContent = async () => {
+      if (language === 'en') {
+        setTranslatedItinerary(originalItinerary);
+        return;
+      }
+
+      setIsTranslating(true);
+      try {
+        const translatableContent = {
+          destination: originalItinerary.destination,
+          itinerary: originalItinerary.itinerary.map(day => ({
+            title: day.title,
+            activities: day.activities.map(activity => ({
+              placeName: activity.placeName,
+              description: activity.description,
+            })),
+          })),
+        };
+
+        const result = await translateText({
+          content: JSON.stringify(translatableContent),
+          targetLanguage: language,
+        });
+
+        const translatedContent = JSON.parse(result.translatedContent);
+
+        const newItinerary: Itinerary = {
+          ...originalItinerary,
+          destination: translatedContent.destination,
+          itinerary: originalItinerary.itinerary.map((day, dayIndex) => ({
+            ...day,
+            title: translatedContent.itinerary[dayIndex].title,
+            activities: day.activities.map((activity, activityIndex) => ({
+              ...activity,
+              placeName: translatedContent.itinerary[dayIndex].activities[activityIndex].placeName,
+              description: translatedContent.itinerary[dayIndex].activities[activityIndex].description,
+            })),
+          })),
+        };
+        setTranslatedItinerary(newItinerary);
+
+      } catch (error) {
+        console.error("Failed to translate itinerary", error);
+        toast({ variant: 'destructive', title: 'Translation Failed', description: 'Could not translate the itinerary.' });
+        setTranslatedItinerary(originalItinerary); // Revert to original if translation fails
+      } finally {
+        setIsTranslating(false);
+      }
+    };
+
+    translateItineraryContent();
+  }, [language, originalItinerary, toast]);
+
 
   const handleExport = () => {
     if (itineraryContentRef.current) {
@@ -102,6 +164,17 @@ export default function ItineraryDisplay({ itinerary, setItinerary }: ItineraryD
         console.error("Failed to adjust itinerary", error);
         toast({ variant: 'destructive', title: 'Update Failed', description: 'Could not adjust the itinerary.' });
     }
+  }
+  
+  if (isTranslating) {
+    return (
+      <div className="flex h-[60vh] flex-col items-center justify-center rounded-lg border border-dashed">
+        <Loader2 className="h-16 w-16 animate-spin text-primary" />
+        <p className="mt-4 text-lg text-muted-foreground">
+          Translating your itinerary...
+        </p>
+      </div>
+    );
   }
 
   return (

@@ -10,11 +10,13 @@ import { Loader2, Sparkles } from 'lucide-react';
 import ItineraryForm from '@/components/itinerary-form';
 import { generatePersonalizedItinerary } from '@/ai/flows/generate-personalized-itinerary';
 import LandingHeader from '@/components/landing-header';
+import { useLanguage } from '@/hooks/use-language';
 
 export default function LandingPage() {
   const [itinerary, setItinerary] = useState<Itinerary | null>(null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const { language } = useLanguage();
 
   const handleItineraryGeneration = async (data: {
     destination: string;
@@ -85,6 +87,7 @@ export default function LandingPage() {
             )}
             {itinerary && (
                 <ItineraryDisplay 
+                key={language}
                 itinerary={itinerary}
                 setItinerary={setItinerary}
                 />

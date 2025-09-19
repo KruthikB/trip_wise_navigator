@@ -15,9 +15,25 @@ import {
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 import { Skeleton } from './ui/skeleton';
+import { Globe } from 'lucide-react';
+import { useLanguage } from '@/hooks/use-language';
+
+const languages = [
+    { code: 'en', name: 'English' },
+    { code: 'hi', name: 'Hindi' },
+    { code: 'bn', name: 'Bengali' },
+    { code: 'gu', name: 'Gujarati' },
+    { code: 'kn', name: 'Kannada' },
+    { code: 'ml', name: 'Malayalam' },
+    { code: 'mr', name: 'Marathi' },
+    { code: 'ta', name: 'Tamil' },
+    { code: 'te', name: 'Telugu' },
+    { code: 'ur', name: 'Urdu' },
+];
 
 export default function LandingHeader() {
   const { user, loading, signOut } = useAuth();
+  const { language, setLanguage } = useLanguage();
 
   return (
     <>
@@ -34,47 +50,73 @@ export default function LandingHeader() {
           <div className="flex flex-1 items-center justify-end space-x-2">
             {loading ? (
               <div className="flex items-center gap-2">
+                <Skeleton className="h-10 w-10 rounded-full" />
                 <Skeleton className="h-10 w-20" />
                 <Skeleton className="h-10 w-24" />
                 <Skeleton className="h-10 w-10 rounded-full" />
               </div>
-            ) : user ? (
-              <>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                      <Avatar className="h-10 w-10 border-2 border-white">
-                        <AvatarImage src={user.photoURL ?? ''} alt={user.displayName ?? ''} />
-                        <AvatarFallback>
-                          {user.displayName?.charAt(0) ?? user.email?.charAt(0)}
-                        </AvatarFallback>
-                      </Avatar>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56" align="end" forceMount>
-                    <DropdownMenuLabel className="font-normal">
-                      <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">{user.displayName}</p>
-                        <p className="text-xs leading-none text-muted-foreground">
-                          {user.email}
-                        </p>
-                      </div>
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={signOut}>
-                      Log out
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </>
             ) : (
-              <>
-                <Button variant="outline" className="bg-transparent text-white border-white hover:bg-white hover:text-blue-600" asChild>
-                  <Link href="/login">Sign In</Link>
-                </Button>
-                <Button className="bg-white text-blue-600 hover:bg-white/90" asChild>
-                  <Link href="/login">Register</Link>
-                </Button>
+                <>
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="text-white hover:bg-white/10 hover:text-white">
+                        <Globe className="h-5 w-5" />
+                    </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>Select Language</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    {languages.map((lang) => (
+                        <DropdownMenuItem
+                        key={lang.code}
+                        onSelect={() => setLanguage(lang.code)}
+                        className={language === lang.code ? 'bg-accent' : ''}
+                        >
+                        {lang.name}
+                        </DropdownMenuItem>
+                    ))}
+                    </DropdownMenuContent>
+                </DropdownMenu>
+
+                { user ? (
+                    <>
+                        <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                            <Avatar className="h-10 w-10 border-2 border-white">
+                                <AvatarImage src={user.photoURL ?? ''} alt={user.displayName ?? ''} />
+                                <AvatarFallback>
+                                {user.displayName?.charAt(0) ?? user.email?.charAt(0)}
+                                </AvatarFallback>
+                            </Avatar>
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="w-56" align="end" forceMount>
+                            <DropdownMenuLabel className="font-normal">
+                            <div className="flex flex-col space-y-1">
+                                <p className="text-sm font-medium leading-none">{user.displayName}</p>
+                                <p className="text-xs leading-none text-muted-foreground">
+                                {user.email}
+                                </p>
+                            </div>
+                            </DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={signOut}>
+                            Log out
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                        </DropdownMenu>
+                    </>
+                    ) : (
+                    <>
+                        <Button variant="outline" className="bg-transparent text-white border-white hover:bg-white hover:text-blue-600" asChild>
+                        <Link href="/login">Sign In</Link>
+                        </Button>
+                        <Button className="bg-white text-blue-600 hover:bg-white/90" asChild>
+                        <Link href="/login">Register</Link>
+                        </Button>
+                    </>
+                    )}
               </>
             )}
           </div>
