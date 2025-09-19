@@ -11,6 +11,7 @@ import ItineraryForm from '@/components/itinerary-form';
 import LandingHeader from '@/components/landing-header';
 import { useLanguage } from '@/hooks/use-language';
 import { useTranslation } from '@/hooks/use-translation';
+import { generatePersonalizedItinerary } from '@/ai/flows/generate-personalized-itinerary';
 
 export default function LandingPage() {
   const [itinerary, setItinerary] = useState<Itinerary | null>(null);
