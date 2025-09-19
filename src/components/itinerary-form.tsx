@@ -20,6 +20,7 @@ import { Loader2, WandSparkles, Briefcase, Plane, Hotel, Tag } from 'lucide-reac
 import { Textarea } from './ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import Link from 'next/link';
 
 const formSchema = z.object({
   destination: z.string().min(2, { message: 'Destination must be at least 2 characters.' }),
@@ -57,9 +58,15 @@ export default function ItineraryForm({ onSubmit, isGenerating }: ItineraryFormP
         <Tabs defaultValue="holidays">
           <TabsList className="grid w-full grid-cols-4 bg-muted">
             <TabsTrigger value="holidays"><Briefcase className='mr-2'/>Holidays</TabsTrigger>
-            <TabsTrigger value="flights" disabled><Plane className='mr-2'/>Flights</TabsTrigger>
-            <TabsTrigger value="hotels" disabled><Hotel className='mr-2'/>Hotels</TabsTrigger>
-            <TabsTrigger value="deals" disabled><Tag className='mr-2'/>Holiday Deals</TabsTrigger>
+            <TabsTrigger value="flights" asChild>
+                <Link href="https://www.easemytrip.com/flights.html" target="_blank"><Plane className='mr-2'/>Flights</Link>
+            </TabsTrigger>
+            <TabsTrigger value="hotels" asChild>
+                <Link href="https://www.easemytrip.com/hotels/" target="_blank"><Hotel className='mr-2'/>Hotels</Link>
+            </TabsTrigger>
+            <TabsTrigger value="deals" asChild>
+                <Link href="https://www.easemytrip.com/offers/holiday-deals.html" target="_blank"><Tag className='mr-2'/>Holiday Deals</Link>
+            </TabsTrigger>
           </TabsList>
           <TabsContent value="holidays">
             <Form {...form}>
@@ -72,7 +79,7 @@ export default function ItineraryForm({ onSubmit, isGenerating }: ItineraryFormP
                       <FormItem>
                         <FormLabel>Destination</FormLabel>
                         <FormControl>
-                          <Input placeholder="e.g., Paris, France" {...field} />
+                          <Input placeholder="e.g., Goa, India" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -99,7 +106,7 @@ export default function ItineraryForm({ onSubmit, isGenerating }: ItineraryFormP
                         <FormLabel>Budget</FormLabel>
                         <div className="flex gap-2">
                            <FormControl>
-                            <Input placeholder="e.g., 1500" {...field} />
+                            <Input placeholder="e.g., 50000" {...field} />
                           </FormControl>
                           <Select defaultValue="INR">
                             <SelectTrigger className="w-[100px]">
