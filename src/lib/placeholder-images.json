@@ -1,3 +1,11 @@
+
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "hero",
+      "description": "A stunning landscape view of mountains and a lake, representing travel and adventure.",
+      "imageUrl": "https://picsum.photos/seed/tripwise_hero/1920/1080",
+      "imageHint": "travel landscape"
+    }
+  ]
 }
