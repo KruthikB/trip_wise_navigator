@@ -15,7 +15,8 @@ const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-if (process.env.NODE_ENV === 'development') {
+// Connect to emulators if in development and the flag is set
+if (process.env.NODE_ENV === 'development' && process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATOR === 'true') {
   try {
     // Point to the local auth emulator.
     // Ensure you have the emulator running.
