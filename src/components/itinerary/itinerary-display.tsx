@@ -1,4 +1,5 @@
 
+
 'use client'
 
 import type { Itinerary } from '@/lib/types';
@@ -9,7 +10,7 @@ import { Accordion } from '@/components/ui/accordion';
 import ItineraryDayView from './itinerary-day-view';
 import MapView from './map-view';
 import { APIProvider } from '@vis.gl/react-google-maps';
-import { useRef } from 'react';
+import { useState, useRef } from 'react';
 import { exportToPdf } from '@/lib/export';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -33,10 +34,18 @@ export default function ItineraryDisplay({ itinerary, setItinerary }: ItineraryD
   const itineraryContentRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const { user } = useAuth();
+  const [openDays, setOpenDays] = useState<string[]>(['day-1']);
 
   const handleExport = () => {
     if (itineraryContentRef.current) {
-      exportToPdf(itineraryContentRef.current, `TripWise-Itinerary-${itinerary.destination}`);
+      // Expand all accordion items before exporting
+      const allDayKeys = itinerary.itinerary.map(day => `day-${day.day}`);
+      setOpenDays(allDayKeys);
+
+      // Allow time for the UI to update before exporting
+      setTimeout(() => {
+        exportToPdf(itineraryContentRef.current!, `TripWise-Itinerary-${itinerary.destination}`);
+      }, 500); // 500ms delay to ensure content is expanded
     }
   };
 
@@ -57,7 +66,8 @@ export default function ItineraryDisplay({ itinerary, setItinerary }: ItineraryD
         });
         return;
     }
-
+    // In a real app, you'd call the booking API here.
+    // For this demo, we'll just show a success message.
     toast({
         title: 'Booking Confirmed!',
         description: `Your trip to ${itinerary.destination} is confirmed. Happy travels!`,
@@ -129,7 +139,12 @@ export default function ItineraryDisplay({ itinerary, setItinerary }: ItineraryD
             </TabsList>
             <TabsContent value="itinerary">
               <div ref={itineraryContentRef} className="mt-4">
-                <Accordion type="single" collapsible defaultValue="day-1" className="w-full">
+                <Accordion 
+                  type="multiple" 
+                  value={openDays}
+                  onValueChange={setOpenDays}
+                  className="w-full"
+                >
                   {itinerary.itinerary.map((day) => (
                     <ItineraryDayView key={day.day} day={day} />
                   ))}
