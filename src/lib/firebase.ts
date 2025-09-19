@@ -15,8 +15,8 @@ const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Connect to emulators if in development and variable is set
-if (process.env.NODE_ENV === 'development' && process.env.NEXT_PUBLIC_USE_FIREBASE_EMULATOR === 'true') {
+// Connect to emulators if in development
+if (process.env.NODE_ENV === 'development') {
   try {
     // Point to the local auth emulator.
     // By default, this is localhost:9099
