@@ -21,6 +21,8 @@ import { Textarea } from './ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { useState } from 'react';
+import { suggestTripDetails } from '@/ai/flows/suggest-trip-details';
+import { useToast } from '@/hooks/use-toast';
 
 const formSchema = z.object({
   destination: z.string().min(2, { message: 'Destination must be at least 2 characters.' }),
@@ -46,6 +48,8 @@ export default function ItineraryForm({ onSubmit, isGenerating }: ItineraryFormP
   });
 
   const [activeTab, setActiveTab] = useState('holidays');
+  const [isSuggesting, setIsSuggesting] = useState(false);
+  const { toast } = useToast();
 
   const handleFormSubmit = (values: z.infer<typeof formSchema>) => {
     onSubmit({
@@ -57,6 +61,37 @@ export default function ItineraryForm({ onSubmit, isGenerating }: ItineraryFormP
   const handleTabLinkClick = (url: string) => {
     window.open(url, '_blank');
     setActiveTab('holidays');
+  };
+  
+  const handleSurpriseMe = async () => {
+    setIsSuggesting(true);
+    try {
+      const currentValues = form.getValues();
+      const result = await suggestTripDetails({
+        destination: currentValues.destination,
+        duration: currentValues.duration,
+        budget: currentValues.budget,
+        theme: currentValues.themes,
+      });
+
+      // budget might come back with currency, remove it for the form
+      const budgetValue = result.budget.replace(/[^0-9]/g, '');
+
+      form.setValue('destination', result.destination);
+      form.setValue('duration', result.duration);
+      form.setValue('budget', budgetValue);
+      form.setValue('themes', result.theme);
+
+    } catch(error) {
+       console.error('Failed to get suggestion:', error);
+      toast({
+        variant: 'destructive',
+        title: 'Oh no! Something went wrong.',
+        description: 'We couldn\'t generate a surprise for you. Please try again.',
+      });
+    } finally {
+      setIsSuggesting(false);
+    }
   };
 
   return (
@@ -152,14 +187,17 @@ export default function ItineraryForm({ onSubmit, isGenerating }: ItineraryFormP
                 />
 
                 <div className="flex flex-wrap items-center gap-4 pt-4">
-                  <Button type="submit" size="lg" className="flex-grow bg-[#FF5722] hover:bg-[#E64A19] text-white" disabled={isGenerating}>
+                  <Button type="submit" size="lg" className="flex-grow bg-[#FF5722] hover:bg-[#E64A19] text-white" disabled={isGenerating || isSuggesting}>
                     {isGenerating ? (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     ) : <WandSparkles className='mr-2'/>}
                     Generate My Itinerary
                   </Button>
-                  <Button size="lg" variant="outline" className="flex-grow" disabled>
-                    <WandSparkles className='mr-2'/> Surprise Me!
+                  <Button size="lg" variant="outline" className="flex-grow" onClick={handleSurpriseMe} disabled={isGenerating || isSuggesting}>
+                    {isSuggesting ? (
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    ) : <WandSparkles className='mr-2'/>}
+                     Surprise Me!
                   </Button>
                 </div>
               </form>
