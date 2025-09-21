@@ -16,7 +16,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Card, CardContent } from '@/components/ui/card';
-import { Loader2, WandSparkles, Briefcase, Plane, Hotel, Tag, Users } from 'lucide-react';
+import { Loader2, WandSparkles, Briefcase, Plane, Hotel, Tag } from 'lucide-react';
 import { Textarea } from './ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
@@ -101,24 +101,27 @@ export default function ItineraryForm({ onSubmit, isGenerating }: ItineraryFormP
   };
 
   return (
-    <Card className="shadow-lg">
-      <CardContent className="p-4">
+    <Card className="shadow-lg border-none">
+      <CardContent className="p-0">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-4 bg-muted">
-            <TabsTrigger value="holidays"><Briefcase className='mr-2'/>{t('holidays')}</TabsTrigger>
-            <TabsTrigger value="flights" onClick={() => handleTabLinkClick('https://www.easemytrip.com/flights.html')}>
+          <TabsList className="bg-transparent p-0 h-auto justify-start gap-4">
+            <TabsTrigger value="holidays" className="data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-none rounded-t-lg border-b-2 border-transparent data-[state=active]:border-primary p-3 font-semibold">
+                <Briefcase className='mr-2'/>{t('holidays')}
+            </TabsTrigger>
+            <TabsTrigger value="flights" className="data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-none rounded-t-lg border-b-2 border-transparent data-[state=active]:border-primary p-3 font-semibold" onClick={() => handleTabLinkClick('https://www.easemytrip.com/flights.html')}>
                 <Plane className='mr-2'/>{t('flights')}
             </TabsTrigger>
-            <TabsTrigger value="hotels" onClick={() => handleTabLinkClick('https://www.easemytrip.com/hotels/')}>
+            <TabsTrigger value="hotels" className="data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-none rounded-t-lg border-b-2 border-transparent data-[state=active]:border-primary p-3 font-semibold" onClick={() => handleTabLinkClick('https://www.easemytrip.com/hotels/')}>
                 <Hotel className='mr-2'/>{t('hotels')}
             </TabsTrigger>
-            <TabsTrigger value="deals" onClick={() => handleTabLinkClick('https://www.easemytrip.com/offers/holiday-deals.html')}>
+            <TabsTrigger value="deals" className="data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-none rounded-t-lg border-b-2 border-transparent data-[state=active]:border-primary p-3 font-semibold" onClick={() => handleTabLinkClick('https://www.easemytrip.com/offers/holiday-deals.html')}>
                 <Tag className='mr-2'/>{t('holidayDeals')}
             </TabsTrigger>
           </TabsList>
-          <TabsContent value="holidays">
+          <div className='bg-card p-6 rounded-b-lg rounded-tr-lg'>
+          <TabsContent value="holidays" className="m-0">
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6 pt-6">
+              <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6">
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                   <FormField
                     control={form.control}
@@ -222,6 +225,7 @@ export default function ItineraryForm({ onSubmit, isGenerating }: ItineraryFormP
               </form>
             </Form>
           </TabsContent>
+          </div>
         </Tabs>
       </CardContent>
     </Card>

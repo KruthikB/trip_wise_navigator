@@ -67,17 +67,8 @@ export default function LandingPage() {
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <LandingHeader />
-      <main className="flex-1">
-        <div className="container mx-auto max-w-4xl py-24 px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
-                <h1 className="font-headline text-4xl font-bold tracking-tight text-foreground sm:text-5xl md:text-6xl">
-                {t('heroTitle')}
-                </h1>
-                <p className="mt-6 text-lg leading-8 text-muted-foreground">
-                {t('heroSubtitle')}
-                </p>
-            </div>
-            
+      <main className="flex-1 bg-primary/10">
+        <div className="container mx-auto max-w-5xl py-12 px-4 sm:px-6 lg:px-8">
             <ItineraryForm
                 onSubmit={handleItineraryGeneration}
                 isGenerating={loading}
@@ -100,7 +91,7 @@ export default function LandingPage() {
                     />
                 )}
                 {!loading && !itinerary && (
-                    <div className="flex h-[60vh] flex-col items-center justify-center rounded-lg border border-dashed bg-muted/50">
+                    <div className="flex h-[60vh] flex-col items-center justify-center rounded-lg border border-dashed bg-card">
                     <div className="text-center">
                         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
                         <Sparkles className="h-8 w-8 text-primary" />

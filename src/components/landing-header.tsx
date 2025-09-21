@@ -44,13 +44,13 @@ export default function LandingHeader() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-20 items-center text-foreground">
+      <header className="sticky top-0 z-50 w-full bg-[#0070F3]">
+        <div className="container flex h-20 items-center text-white">
           <div className="mr-4 flex">
             <Link href="/" className="mr-6 flex items-center space-x-2">
-              <TripWiseLogo className="h-8 w-8 text-primary" />
+              <TripWiseLogo className="h-8 w-8" />
               <span className="text-2xl font-bold sm:inline-block">
-                TripWise
+                EaseMyTrip
               </span>
             </Link>
           </div>
@@ -64,7 +64,7 @@ export default function LandingHeader() {
                 <>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="text-foreground hover:bg-accent hover:text-accent-foreground">
+                    <Button variant="ghost" size="icon" className="text-white hover:bg-white/10 hover:text-white">
                         <Globe className="h-5 w-5" />
                     </Button>
                     </DropdownMenuTrigger>
@@ -88,7 +88,7 @@ export default function LandingHeader() {
                         <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                            <Avatar className="h-10 w-10 border-2 border-primary">
+                            <Avatar className="h-10 w-10 border-2 border-white">
                                 <AvatarImage src={user.photoURL ?? ''} alt={user.displayName ?? ''} />
                                 <AvatarFallback>
                                 {getInitials(user.displayName) || getInitials(user.email)}
@@ -121,10 +121,10 @@ export default function LandingHeader() {
                     </>
                     ) : (
                     <>
-                        <Button variant="outline" asChild>
+                        <Button variant="outline" className="bg-transparent text-white border-white hover:bg-white hover:text-blue-600" asChild>
                         <Link href="/login">{t('signIn')}</Link>
                         </Button>
-                        <Button asChild>
+                        <Button className="bg-white text-blue-600 hover:bg-white/90" asChild>
                         <Link href="/login">{t('register')}</Link>
                         </Button>
                     </>
