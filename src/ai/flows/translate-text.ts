@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview Translates text to a specified language using Gemini AI.
@@ -49,6 +50,7 @@ const translateTextFlow = ai.defineFlow(
   },
   async input => {
     const { output } = await prompt(input);
-    return output!;
+    // Fallback to original content if translation fails to prevent crash
+    return { translatedContent: output?.translatedContent ?? input.content };
   }
 );
