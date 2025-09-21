@@ -41,24 +41,21 @@ export default function ItineraryDisplay({ itinerary: itineraryProp, setItinerar
   const [openDays, setOpenDays] = useState<string[]>(['day-1']);
   const { t } = useTranslation();
   
-  // Keep a stable, original version of the itinerary
-  const [originalItinerary, setOriginalItinerary] = useState(itineraryProp);
-
-  const [itinerary, setTranslatedItinerary] = useState<Itinerary>(itineraryProp);
+  const [translatedItinerary, setTranslatedItinerary] = useState<Itinerary>(itineraryProp);
   const [isTranslating, setIsTranslating] = useState(false);
 
   useEffect(() => {
     const translateItineraryContent = async () => {
       if (language === 'en') {
-        setTranslatedItinerary(originalItinerary);
+        setTranslatedItinerary(itineraryProp);
         return;
       }
 
       setIsTranslating(true);
       try {
         const translatableContent = {
-          destination: originalItinerary.destination,
-          itinerary: originalItinerary.itinerary.map(day => ({
+          destination: itineraryProp.destination,
+          itinerary: itineraryProp.itinerary.map(day => ({
             title: day.title,
             activities: day.activities.map(activity => ({
               placeName: activity.placeName,
@@ -75,9 +72,9 @@ export default function ItineraryDisplay({ itinerary: itineraryProp, setItinerar
         const translatedContent = result.translatedContent as any;
 
         const newItinerary: Itinerary = {
-          ...originalItinerary,
-          destination: translatedContent?.destination || originalItinerary.destination,
-          itinerary: originalItinerary.itinerary.map((day, dayIndex) => {
+          ...itineraryProp,
+          destination: translatedContent?.destination || itineraryProp.destination,
+          itinerary: itineraryProp.itinerary.map((day, dayIndex) => {
             const translatedDay = translatedContent?.itinerary?.[dayIndex];
             return {
               ...day,
@@ -98,25 +95,25 @@ export default function ItineraryDisplay({ itinerary: itineraryProp, setItinerar
       } catch (error) {
         console.error("Failed to translate itinerary", error);
         toast({ variant: 'destructive', title: t('translationFailedTitle'), description: t('translationFailedDescription') });
-        setTranslatedItinerary(originalItinerary); // Revert to original if translation fails
+        setTranslatedItinerary(itineraryProp); // Revert to original if translation fails
       } finally {
         setIsTranslating(false);
       }
     };
 
     translateItineraryContent();
-  }, [language, originalItinerary, toast, t]);
+  }, [language, itineraryProp, toast, t]);
 
 
   const handleExport = () => {
     if (itineraryContentRef.current) {
       // Expand all accordion items before exporting
-      const allDayKeys = itinerary.itinerary.map(day => `day-${day.day}`);
+      const allDayKeys = translatedItinerary.itinerary.map(day => `day-${day.day}`);
       setOpenDays(allDayKeys);
 
       // Allow time for the UI to update before exporting
       setTimeout(() => {
-        exportToPdf(itineraryContentRef.current!, `TripWise-Itinerary-${itinerary.destination}`);
+        exportToPdf(itineraryContentRef.current!, `TripWise-Itinerary-${translatedItinerary.destination}`);
       }, 500); // 500ms delay to ensure content is expanded
     }
   };
@@ -142,36 +139,31 @@ export default function ItineraryDisplay({ itinerary: itineraryProp, setItinerar
     // For this demo, we'll just show a success message.
     toast({
         title: t('bookingConfirmedTitle'),
-        description: t('bookingConfirmedDescription', { destination: itinerary.destination }),
+        description: t('bookingConfirmedDescription', { destination: translatedItinerary.destination }),
     });
   };
 
   const handleWeatherAdjust = async (weather: 'rainy' | 'sunny') => {
     toast({ title: t('adjustingItineraryTitle', { weather }) });
     try {
-        const currentItineraryString = JSON.stringify(itinerary.itinerary);
+        // Always use the original prop for adjustments
+        const currentItineraryString = JSON.stringify(itineraryProp.itinerary);
         const result = await adjustItineraryBasedOnWeather({ itinerary: currentItineraryString, weatherCondition: weather });
         const newItineraryActivities = JSON.parse(result.adjustedItinerary);
         
-        // A simple way to merge, assuming the structure is preserved
-        const updatedItineraryDays = itinerary.itinerary.map((day, index) => ({
+        const updatedItineraryDays = itineraryProp.itinerary.map((day, index) => ({
             ...day,
             activities: newItineraryActivities[index]?.activities ?? day.activities,
         }));
 
         const updatedItinerary = {
-            ...itinerary,
+            ...itineraryProp,
             itinerary: updatedItineraryDays
         };
         
-        // Validate the new structure
         const parsedItinerary = ItinerarySchema.parse(updatedItinerary);
-
-        // Update both the original and translated states to keep them in sync
-        setOriginalItinerary(parsedItinerary);
-        setTranslatedItinerary(parsedItinerary);
         
-        // Also update the parent component state
+        // Update the parent component state. This will trigger a re-render and translation.
         setItinerary(parsedItinerary);
 
         toast({ title: t('itineraryUpdatedTitle'), description: t('itineraryUpdatedDescription') });
@@ -198,8 +190,8 @@ export default function ItineraryDisplay({ itinerary: itineraryProp, setItinerar
       <div className="flex flex-col space-y-1.5 p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h3 className="text-2xl font-semibold leading-none tracking-tight">{t('yourTripTo', { destination: itinerary.destination })}</h3>
-            <p className="text-sm text-muted-foreground">{t('tripDetails', { duration: itinerary.duration, budget: itinerary.budget })}</p>
+            <h3 className="text-2xl font-semibold leading-none tracking-tight">{t('yourTripTo', { destination: translatedItinerary.destination })}</h3>
+            <p className="text-sm text-muted-foreground">{t('tripDetails', { duration: translatedItinerary.duration, budget: translatedItinerary.budget })}</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <DropdownMenu>
@@ -234,7 +226,7 @@ export default function ItineraryDisplay({ itinerary: itineraryProp, setItinerar
                   onValueChange={setOpenDays}
                   className="w-full"
                 >
-                  {itinerary.itinerary.map((day) => (
+                  {translatedItinerary.itinerary.map((day) => (
                     <ItineraryDayView key={day.day} day={day} />
                   ))}
                 </Accordion>
@@ -242,7 +234,7 @@ export default function ItineraryDisplay({ itinerary: itineraryProp, setItinerar
             </TabsContent>
             <TabsContent value="map">
               <div className="mt-4 h-[500px] w-full rounded-md overflow-hidden">
-                <MapView itinerary={itinerary} />
+                <MapView itinerary={translatedItinerary} />
               </div>
             </TabsContent>
           </Tabs>
