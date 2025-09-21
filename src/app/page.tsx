@@ -99,7 +99,7 @@ export default function LandingPage() {
             )}
             {itinerary && (
                 <ItineraryDisplay 
-                key={language}
+                key={itinerary.destination + itinerary.duration}
                 itinerary={itinerary}
                 setItinerary={setItinerary}
                 />

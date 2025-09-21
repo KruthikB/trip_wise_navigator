@@ -33,15 +33,18 @@ type ItineraryDisplayProps = {
   setItinerary: React.Dispatch<React.SetStateAction<Itinerary | null>>;
 };
 
-export default function ItineraryDisplay({ itinerary: originalItinerary, setItinerary }: ItineraryDisplayProps) {
+export default function ItineraryDisplay({ itinerary: itineraryProp, setItinerary }: ItineraryDisplayProps) {
   const itineraryContentRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
   const { user } = useAuth();
   const { language } = useLanguage();
   const [openDays, setOpenDays] = useState<string[]>(['day-1']);
   const { t } = useTranslation();
+  
+  // Keep a stable, original version of the itinerary
+  const [originalItinerary, setOriginalItinerary] = useState(itineraryProp);
 
-  const [itinerary, setTranslatedItinerary] = useState<Itinerary>(originalItinerary);
+  const [itinerary, setTranslatedItinerary] = useState<Itinerary>(itineraryProp);
   const [isTranslating, setIsTranslating] = useState(false);
 
   useEffect(() => {
@@ -164,7 +167,13 @@ export default function ItineraryDisplay({ itinerary: originalItinerary, setItin
         // Validate the new structure
         const parsedItinerary = ItinerarySchema.parse(updatedItinerary);
 
+        // Update both the original and translated states to keep them in sync
+        setOriginalItinerary(parsedItinerary);
+        setTranslatedItinerary(parsedItinerary);
+        
+        // Also update the parent component state
         setItinerary(parsedItinerary);
+
         toast({ title: t('itineraryUpdatedTitle'), description: t('itineraryUpdatedDescription') });
 
     } catch (error) {
