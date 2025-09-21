@@ -69,20 +69,26 @@ export default function ItineraryDisplay({ itinerary: originalItinerary, setItin
           targetLanguage: language,
         });
 
-        const translatedContent = result.translatedContent;
+        const translatedContent = result.translatedContent as any;
 
         const newItinerary: Itinerary = {
           ...originalItinerary,
-          destination: translatedContent.destination,
-          itinerary: originalItinerary.itinerary.map((day, dayIndex) => ({
-            ...day,
-            title: translatedContent.itinerary[dayIndex].title,
-            activities: day.activities.map((activity, activityIndex) => ({
-              ...activity,
-              placeName: translatedContent.itinerary[dayIndex].activities[activityIndex].placeName,
-              description: translatedContent.itinerary[dayIndex].activities[activityIndex].description,
-            })),
-          })),
+          destination: translatedContent?.destination || originalItinerary.destination,
+          itinerary: originalItinerary.itinerary.map((day, dayIndex) => {
+            const translatedDay = translatedContent?.itinerary?.[dayIndex];
+            return {
+              ...day,
+              title: translatedDay?.title || day.title,
+              activities: day.activities.map((activity, activityIndex) => {
+                const translatedActivity = translatedDay?.activities?.[activityIndex];
+                return {
+                  ...activity,
+                  placeName: translatedActivity?.placeName || activity.placeName,
+                  description: translatedActivity?.description || activity.description,
+                };
+              }),
+            };
+          }),
         };
         setTranslatedItinerary(newItinerary);
 
