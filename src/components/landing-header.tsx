@@ -106,6 +106,10 @@ export default function LandingHeader() {
                             </div>
                             </DropdownMenuLabel>
                             <DropdownMenuSeparator />
+                            <DropdownMenuItem onSelect={() => router.push('/my-bookings')}>
+                              My Bookings
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={handleSignOut}>
                             {t('logOut')}
                             </DropdownMenuItem>
