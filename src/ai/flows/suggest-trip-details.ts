@@ -69,6 +69,15 @@ const suggestTripDetailsFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await prompt(input);
-    return output!;
+    // Fallback to a default suggestion if AI fails.
+    if (!output) {
+      return {
+        destination: input.destination || 'Goa, India',
+        budget: input.budget || '50000',
+        duration: input.duration || 7,
+        theme: input.theme || 'Beaches and Nightlife',
+      };
+    }
+    return output;
   }
 );

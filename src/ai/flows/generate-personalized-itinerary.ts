@@ -62,6 +62,16 @@ const generatePersonalizedItineraryFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await prompt(input);
-    return output!;
+    if (!output) {
+      // If the AI fails, return an empty but valid itinerary structure
+      // to prevent the client from crashing.
+      return {
+        destination: input.destination,
+        duration: input.duration,
+        budget: input.budget,
+        itinerary: [],
+      };
+    }
+    return output;
   }
 );
