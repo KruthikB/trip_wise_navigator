@@ -29,6 +29,7 @@ import { Loader2 } from 'lucide-react';
 import { useTranslation } from '@/hooks/use-translation';
 import { useBookings } from '@/hooks/use-bookings';
 import BookingModal from '../booking-modal';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 
 type ItineraryDisplayProps = {
   itinerary: Itinerary;
@@ -208,12 +209,12 @@ export default function ItineraryDisplay({ itinerary: itineraryProp, setItinerar
         onConfirm={handleConfirmBooking}
         itinerary={translatedItinerary}
     />
-    <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
-      <div className="flex flex-col space-y-1.5 p-6">
+    <Card className="w-full shadow-lg">
+      <CardHeader>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h3 className="text-2xl font-semibold leading-none tracking-tight">{t('yourTripTo', { destination: translatedItinerary.destination })}</h3>
-            <p className="flex items-center gap-4 text-sm text-muted-foreground">
+            <CardTitle className="text-2xl tracking-tight">{t('yourTripTo', { destination: translatedItinerary.destination })}</CardTitle>
+            <p className="flex items-center gap-4 text-sm text-muted-foreground mt-2">
                 <span>{t('tripDetails', { duration: translatedItinerary.duration, budget: translatedItinerary.budget })}</span>
                 <span className="flex items-center gap-1.5"><Users className="h-4 w-4"/> {translatedItinerary.numberOfTravellers} Travellers</span>
             </p>
@@ -232,11 +233,11 @@ export default function ItineraryDisplay({ itinerary: itineraryProp, setItinerar
             </DropdownMenu>
             <Button variant="outline" size="icon" onClick={handleShare}><Share2 className="h-4 w-4" /></Button>
             <Button variant="outline" size="icon" onClick={handleExport}><FileDown className="h-4 w-4" /></Button>
-            <Button onClick={handleOpenBookingModal}><Briefcase className="mr-2 h-4 w-4" /> {t('bookNow')}</Button>
+            <Button onClick={handleOpenBookingModal} className="bg-[#FF5722] hover:bg-[#E64A19] text-white"><Briefcase className="mr-2 h-4 w-4" /> {t('bookNow')}</Button>
           </div>
         </div>
-      </div>
-      <div className="p-6 pt-0">
+      </CardHeader>
+      <CardContent>
         <APIProvider apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY!}>
           <Tabs defaultValue="itinerary">
             <TabsList className="grid w-full grid-cols-2">
@@ -258,14 +259,14 @@ export default function ItineraryDisplay({ itinerary: itineraryProp, setItinerar
               </div>
             </TabsContent>
             <TabsContent value="map">
-              <div className="mt-4 h-[500px] w-full rounded-md overflow-hidden">
+              <div className="mt-4 h-[500px] w-full rounded-md overflow-hidden border">
                 <MapView itinerary={translatedItinerary} />
               </div>
             </TabsContent>
           </Tabs>
         </APIProvider>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
     </>
   );
 }
