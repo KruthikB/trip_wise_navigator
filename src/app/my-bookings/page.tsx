@@ -4,7 +4,7 @@
 import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import LandingHeader from '@/components/landing-header';
+import PageHeader from '@/components/page-header';
 import { Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
@@ -39,8 +39,8 @@ export default function MyBookingsPage() {
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
-      <LandingHeader />
-      <main className="flex-1 pt-20">
+      <PageHeader />
+      <main className="flex-1">
         <div className="container mx-auto max-w-4xl py-12">
           <h1 className="mb-8 text-3xl font-bold tracking-tight">My Bookings</h1>
           <div className="space-y-4">

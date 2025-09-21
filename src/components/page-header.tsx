@@ -1,0 +1,139 @@
+
+'use client';
+
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { TripWiseLogo } from '@/components/icons';
+import { useAuth } from '@/hooks/use-auth';
+import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from './ui/dropdown-menu';
+import { Skeleton } from './ui/skeleton';
+import { Globe } from 'lucide-react';
+import { useLanguage } from '@/hooks/use-language';
+import { useTranslation } from '@/hooks/use-translation';
+import { languages } from '@/lib/translations';
+import { useRouter } from 'next/navigation';
+
+export default function PageHeader() {
+  const { user, loading, signOut } = useAuth();
+  const { language, setLanguage } = useLanguage();
+  const { t } = useTranslation();
+  const router = useRouter();
+  
+  const handleSignOut = () => {
+    signOut();
+    router.push('/login');
+  }
+
+  const getInitials = (name: string | null | undefined) => {
+    if (!name) return '';
+    const names = name.split(' ');
+    if (names.length > 1) {
+      return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase();
+    }
+    return name.charAt(0).toUpperCase();
+  }
+
+
+  return (
+    <>
+      <header className="sticky top-0 z-50 w-full bg-[#0070F3]">
+        <div className="container flex h-20 items-center text-white">
+          <div className="mr-4 flex">
+            <Link href="/" className="mr-6 flex items-center space-x-2">
+              <TripWiseLogo className="h-8 w-8" />
+              <span className="text-2xl font-bold sm:inline-block">
+                TripWise
+              </span>
+            </Link>
+          </div>
+          <div className="flex flex-1 items-center justify-end space-x-2">
+            {loading ? (
+              <div className="flex items-center gap-2">
+                <Skeleton className="h-10 w-10 rounded-full" />
+                <Skeleton className="h-10 w-24" />
+              </div>
+            ) : (
+                <>
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="text-white hover:bg-white/10 hover:text-white">
+                        <Globe className="h-5 w-5" />
+                    </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>{t('selectLanguage')}</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    {languages.map((lang) => (
+                        <DropdownMenuItem
+                        key={lang.code}
+                        onSelect={() => setLanguage(lang.code)}
+                        className={language === lang.code ? 'bg-accent' : ''}
+                        >
+                        {lang.name}
+                        </DropdownMenuItem>
+                    ))}
+                    </DropdownMenuContent>
+                </DropdownMenu>
+
+                { user ? (
+                    <>
+                        <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                            <Avatar className="h-10 w-10 border-2 border-white">
+                                <AvatarImage src={user.photoURL ?? ''} alt={user.displayName ?? ''} />
+                                <AvatarFallback>
+                                {getInitials(user.displayName) || getInitials(user.email)}
+                                </AvatarFallback>
+                            </Avatar>
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="w-56" align="end" forceMount>
+                            <DropdownMenuLabel className="font-normal">
+                            <div className="flex flex-col space-y-1">
+                                <p className="text-sm font-medium leading-none">{user.displayName}</p>
+                                <p className="text-xs leading-none text-muted-foreground">
+                                {user.email}
+                                </p>
+                            </div>
+                            </DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onSelect={() => router.push('/my-bookings')}>
+                              My Bookings
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onSelect={() => router.push('/')}>
+                              My Dashboard
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={handleSignOut}>
+                            {t('logOut')}
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                        </DropdownMenu>
+                    </>
+                    ) : (
+                    <>
+                        <Button variant="outline" className="bg-transparent text-white border-white hover:bg-white hover:text-blue-600" asChild>
+                        <Link href="/login">{t('signIn')}</Link>
+                        </Button>
+                        <Button className="bg-white text-blue-600 hover:bg-white/90" asChild>
+                        <Link href="/login">{t('register')}</Link>
+                        </Button>
+                    </>
+                    )}
+              </>
+            )}
+          </div>
+        </div>
+      </header>
+    </>
+  );
+}
