@@ -1,3 +1,4 @@
+
 import type { SVGProps } from 'react';
 
 export function TripWiseLogo(props: SVGProps<SVGSVGElement>) {
@@ -12,8 +13,8 @@ export function TripWiseLogo(props: SVGProps<SVGSVGElement>) {
       strokeLinejoin="round"
       {...props}
     >
-      <path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z" />
-      <path d="M12 7l-1.42 1.42c-1.55 1.55-1.55 4.08 0 5.63L12 15.5l1.42-1.42c1.55-1.55 1.55-4.08 0-5.63L12 7z" />
+      <path d="M22 2L11 13" />
+      <path d="M22 2L15 22L11 13L2 9L22 2Z" />
     </svg>
   );
 }
