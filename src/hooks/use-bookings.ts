@@ -49,5 +49,13 @@ export const useBookings = () => {
     saveBookingsToStorage(user.uid, updatedBookings);
   }, [user, bookings]);
 
-  return { bookings, addBooking, loading };
+  const deleteBooking = useCallback((bookingId: string) => {
+    if (!user) return;
+    const updatedBookings = bookings.filter(b => b.id !== bookingId);
+    setBookings(updatedBookings);
+    saveBookingsToStorage(user.uid, updatedBookings);
+  }, [user, bookings]);
+
+
+  return { bookings, addBooking, deleteBooking, loading };
 };

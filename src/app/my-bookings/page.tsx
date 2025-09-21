@@ -5,14 +5,15 @@ import { useAuth } from '@/hooks/use-auth';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import PageHeader from '@/components/page-header';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Trash2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useBookings } from '@/hooks/use-bookings';
 import { format } from 'date-fns';
+import { Button } from '@/components/ui/button';
 
 export default function MyBookingsPage() {
   const { user, loading: authLoading } = useAuth();
-  const { bookings, loading: bookingsLoading } = useBookings();
+  const { bookings, deleteBooking, loading: bookingsLoading } = useBookings();
   const router = useRouter();
   const [isClient, setIsClient] = useState(false);
 
@@ -44,8 +45,16 @@ export default function MyBookingsPage() {
             {bookings.length > 0 ? (
               bookings.map((booking) => (
                 <Card key={booking.id}>
-                  <CardHeader>
+                  <CardHeader className="flex flex-row items-start justify-between">
                     <CardTitle className="text-xl">{booking.destination}</CardTitle>
+                     <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => deleteBooking(booking.id)}
+                        aria-label="Delete booking"
+                      >
+                        <Trash2 className="h-5 w-5 text-destructive" />
+                      </Button>
                   </CardHeader>
                   <CardContent>
                     <p className="text-muted-foreground">
