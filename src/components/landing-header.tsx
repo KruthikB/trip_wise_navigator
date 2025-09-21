@@ -19,11 +19,28 @@ import { Globe } from 'lucide-react';
 import { useLanguage } from '@/hooks/use-language';
 import { useTranslation } from '@/hooks/use-translation';
 import { languages } from '@/lib/translations';
+import { useRouter } from 'next/navigation';
 
 export default function LandingHeader() {
   const { user, loading, signOut } = useAuth();
   const { language, setLanguage } = useLanguage();
   const { t } = useTranslation();
+  const router = useRouter();
+  
+  const handleSignOut = () => {
+    signOut();
+    router.push('/login');
+  }
+
+  const getInitials = (name: string | null | undefined) => {
+    if (!name) return '';
+    const names = name.split(' ');
+    if (names.length > 1) {
+      return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase();
+    }
+    return name.charAt(0).toUpperCase();
+  }
+
 
   return (
     <>
@@ -41,9 +58,7 @@ export default function LandingHeader() {
             {loading ? (
               <div className="flex items-center gap-2">
                 <Skeleton className="h-10 w-10 rounded-full" />
-                <Skeleton className="h-10 w-20" />
                 <Skeleton className="h-10 w-24" />
-                <Skeleton className="h-10 w-10 rounded-full" />
               </div>
             ) : (
                 <>
@@ -76,7 +91,7 @@ export default function LandingHeader() {
                             <Avatar className="h-10 w-10 border-2 border-white">
                                 <AvatarImage src={user.photoURL ?? ''} alt={user.displayName ?? ''} />
                                 <AvatarFallback>
-                                {user.displayName?.charAt(0) ?? user.email?.charAt(0)}
+                                {getInitials(user.displayName) || getInitials(user.email)}
                                 </AvatarFallback>
                             </Avatar>
                             </Button>
@@ -91,7 +106,7 @@ export default function LandingHeader() {
                             </div>
                             </DropdownMenuLabel>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={signOut}>
+                            <DropdownMenuItem onClick={handleSignOut}>
                             {t('logOut')}
                             </DropdownMenuItem>
                         </DropdownMenuContent>

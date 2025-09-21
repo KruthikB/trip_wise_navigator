@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ItineraryDisplay from '@/components/itinerary/itinerary-display';
 import { useToast } from '@/hooks/use-toast';
 import type { Itinerary } from '@/lib/types';
@@ -12,6 +12,8 @@ import LandingHeader from '@/components/landing-header';
 import { useLanguage } from '@/hooks/use-language';
 import { useTranslation } from '@/hooks/use-translation';
 import { generatePersonalizedItinerary } from '@/ai/flows/generate-personalized-itinerary';
+import { useAuth } from '@/hooks/use-auth';
+import { useRouter } from 'next/navigation';
 
 export default function LandingPage() {
   const [itinerary, setItinerary] = useState<Itinerary | null>(null);
@@ -19,6 +21,14 @@ export default function LandingPage() {
   const { toast } = useToast();
   const { language } = useLanguage();
   const { t } = useTranslation();
+  const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.push('/login');
+    }
+  }, [user, authLoading, router]);
 
   const handleItineraryGeneration = async (data: {
     destination: string;
@@ -43,6 +53,15 @@ export default function LandingPage() {
       setLoading(false);
     }
   };
+
+  if (authLoading || !user) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center">
+        <Loader2 className="h-16 w-16 animate-spin text-primary" />
+      </div>
+    );
+  }
+
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
