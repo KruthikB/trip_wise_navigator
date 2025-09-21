@@ -1,15 +1,25 @@
+// app/login/page.tsx
 "use client";
 
 import { Suspense } from "react";
-import LoginPageContent from "./LoginPageContent";
+import { useSearchParams } from "next/navigation";
 
-// 🚀 Force dynamic rendering (disable prerender/SSG for /login)
-export const dynamic = "force-dynamic";
+function LoginContent() {
+  const searchParams = useSearchParams();
+  const error = searchParams.get("error");
 
-export default function LoginPage() {
   return (
-    <Suspense fallback={<div>Loading login...</div>}>
-      <LoginPageContent />
+    <div>
+      <h1>Login Page</h1>
+      {error && <p style={{ color: "red" }}>Error: {error}</p>}
+    </div>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<p>Loading...</p>}>
+      <LoginContent />
     </Suspense>
   );
 }
