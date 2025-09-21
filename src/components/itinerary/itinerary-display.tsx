@@ -28,6 +28,7 @@ import { translateText } from '@/ai/flows/translate-text';
 import { Loader2 } from 'lucide-react';
 import { useTranslation } from '@/hooks/use-translation';
 import { useBookings } from '@/hooks/use-bookings';
+import BookingModal from '../booking-modal';
 
 type ItineraryDisplayProps = {
   itinerary: Itinerary;
@@ -45,6 +46,7 @@ export default function ItineraryDisplay({ itinerary: itineraryProp, setItinerar
   
   const [translatedItinerary, setTranslatedItinerary] = useState<Itinerary>(itineraryProp);
   const [isTranslating, setIsTranslating] = useState(false);
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
 
   useEffect(() => {
     const translateItineraryContent = async () => {
@@ -132,7 +134,7 @@ export default function ItineraryDisplay({ itinerary: itineraryProp, setItinerar
     });
   };
 
-  const handleBooking = async () => {
+  const handleOpenBookingModal = () => {
     if (!user) {
         toast({
             variant: 'destructive',
@@ -141,7 +143,10 @@ export default function ItineraryDisplay({ itinerary: itineraryProp, setItinerar
         });
         return;
     }
-    
+    setIsBookingModalOpen(true);
+  };
+  
+  const handleConfirmBooking = () => {
     // Use the original, untranslated itinerary for booking
     addBooking(itineraryProp);
     
@@ -149,7 +154,9 @@ export default function ItineraryDisplay({ itinerary: itineraryProp, setItinerar
         title: t('bookingConfirmedTitle'),
         description: t('bookingConfirmedDescription', { destination: translatedItinerary.destination }),
     });
+    setIsBookingModalOpen(false);
   };
+
 
   const handleWeatherAdjust = async (weather: 'rainy' | 'sunny') => {
     toast({ title: t('adjustingItineraryTitle', { weather }) });
@@ -194,6 +201,13 @@ export default function ItineraryDisplay({ itinerary: itineraryProp, setItinerar
   }
 
   return (
+    <>
+    <BookingModal 
+        isOpen={isBookingModalOpen} 
+        onClose={() => setIsBookingModalOpen(false)}
+        onConfirm={handleConfirmBooking}
+        itinerary={translatedItinerary}
+    />
     <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
       <div className="flex flex-col space-y-1.5 p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
@@ -215,7 +229,7 @@ export default function ItineraryDisplay({ itinerary: itineraryProp, setItinerar
             </DropdownMenu>
             <Button variant="outline" size="icon" onClick={handleShare}><Share2 className="h-4 w-4" /></Button>
             <Button variant="outline" size="icon" onClick={handleExport}><FileDown className="h-4 w-4" /></Button>
-            <Button onClick={handleBooking}><Briefcase className="mr-2 h-4 w-4" /> {t('bookNow')}</Button>
+            <Button onClick={handleOpenBookingModal}><Briefcase className="mr-2 h-4 w-4" /> {t('bookNow')}</Button>
           </div>
         </div>
       </div>
@@ -249,5 +263,6 @@ export default function ItineraryDisplay({ itinerary: itineraryProp, setItinerar
         </APIProvider>
       </div>
     </div>
+    </>
   );
 }
