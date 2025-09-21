@@ -16,7 +16,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Card, CardContent } from '@/components/ui/card';
-import { Loader2, WandSparkles, Briefcase, Plane, Hotel, Tag } from 'lucide-react';
+import { Loader2, WandSparkles, Briefcase, Plane, Hotel, Tag, Users } from 'lucide-react';
 import { Textarea } from './ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
@@ -28,6 +28,7 @@ import { useTranslation } from '@/hooks/use-translation';
 const formSchema = z.object({
   destination: z.string().min(2, { message: 'Destination must be at least 2 characters.' }),
   duration: z.coerce.number().int().min(1, { message: 'Duration must be at least 1 day.' }),
+  numberOfTravellers: z.coerce.number().int().min(1, { message: 'Must have at least 1 traveller.' }),
   budget: z.string().min(1, { message: 'Please enter a budget.' }),
   themes: z.string().min(2, { message: 'Please enter at least one interest or theme.' }),
 });
@@ -43,6 +44,7 @@ export default function ItineraryForm({ onSubmit, isGenerating }: ItineraryFormP
     defaultValues: {
       destination: 'Goa, India',
       duration: 7,
+      numberOfTravellers: 2,
       budget: '50000',
       themes: 'cultural heritage, adventure, nightlife, relaxing, museums',
     },
@@ -74,6 +76,7 @@ export default function ItineraryForm({ onSubmit, isGenerating }: ItineraryFormP
         duration: currentValues.duration,
         budget: currentValues.budget,
         theme: currentValues.themes,
+        numberOfTravellers: currentValues.numberOfTravellers,
       });
 
       // budget might come back with currency, remove it for the form
@@ -83,6 +86,7 @@ export default function ItineraryForm({ onSubmit, isGenerating }: ItineraryFormP
       form.setValue('duration', result.duration);
       form.setValue('budget', budgetValue);
       form.setValue('themes', result.theme);
+      form.setValue('numberOfTravellers', result.numberOfTravellers);
 
     } catch(error) {
        console.error('Failed to get suggestion:', error);
@@ -115,7 +119,7 @@ export default function ItineraryForm({ onSubmit, isGenerating }: ItineraryFormP
           <TabsContent value="holidays">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6 pt-6">
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                   <FormField
                     control={form.control}
                     name="destination"
@@ -137,6 +141,19 @@ export default function ItineraryForm({ onSubmit, isGenerating }: ItineraryFormP
                         <FormLabel>{t('duration')}</FormLabel>
                         <FormControl>
                           <Input type="number" placeholder="e.g., 7" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                   <FormField
+                    control={form.control}
+                    name="numberOfTravellers"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Number of Travellers</FormLabel>
+                        <FormControl>
+                          <Input type="number" placeholder="e.g., 2" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>

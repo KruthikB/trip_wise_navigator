@@ -17,6 +17,7 @@ const SuggestTripDetailsInputSchema = z.object({
   duration: z.coerce.number().optional().describe('The duration of the trip in days.'),
   budget: z.string().optional().describe('The budget for the trip.'),
   theme: z.string().optional().describe('The travel themes.'),
+  numberOfTravellers: z.coerce.number().optional().describe('The number of travellers.'),
 });
 
 export type SuggestTripDetailsInput = z.infer<typeof SuggestTripDetailsInputSchema>;
@@ -26,6 +27,7 @@ const SuggestTripDetailsOutputSchema = z.object({
   budget: z.string().describe('The suggested budget in INR.'),
   duration: z.coerce.number().describe('The suggested duration in days as a number.'),
   theme: z.string().describe('The suggested theme.'),
+  numberOfTravellers: z.coerce.number().describe('The suggested number of travellers.'),
 });
 
 export type SuggestTripDetailsOutput = z.infer<typeof SuggestTripDetailsOutputSchema>;
@@ -48,17 +50,18 @@ Inputs provided:
 - Budget: {{{budget}}}
 - Duration: {{{duration}}}
 - Theme: {{{theme}}}
+- Number of Travellers: {{{numberOfTravellers}}}
 
 Rules:
-1. If **destination** is missing → suggest one in India based on budget, duration, and theme.
-2. If **budget** is missing → suggest a realistic budget in INR based on destination, duration, and theme.
-3. If **duration** is missing → suggest an optimal trip duration in days (as a number) based on destination, budget, and theme.
-4. If **theme** is missing → suggest a theme that best fits the destination, budget, and duration.
-   Example: Goa + 3 days + ₹20,000 → “Nightlife & Beaches.”
-5. If **all fields are missing** → suggest a complete recommended trip (destination, budget, duration, theme) within India.
-6. If **all fields are filled** → generate an alternative surprise suggestion with slightly different values (e.g., another destination in the same budget range or a different theme).
-7. Always return results in **India only**.
-8. Always return output in valid JSON format. The duration must be a number, not a string.
+1. If **destination** is missing → suggest one in India based on other fields.
+2. If **budget** is missing → suggest a realistic budget in INR based on other fields.
+3. If **duration** is missing → suggest an optimal trip duration in days (as a number) based on other fields.
+4. If **theme** is missing → suggest a theme that best fits the other fields.
+5. If **numberOfTravellers** is missing -> suggest a common number, like 2 or 4.
+6. If **all fields are missing** → suggest a complete recommended trip (destination, budget, duration, theme, numberOfTravellers) within India.
+7. If **all fields are filled** → generate an alternative surprise suggestion with slightly different values.
+8. Always return results in **India only**.
+9. Always return output in valid JSON format. The duration and numberOfTravellers must be a number, not a string.
 `,
 });
 
@@ -78,6 +81,7 @@ const suggestTripDetailsFlow = ai.defineFlow(
           budget: input.budget || '50000',
           duration: input.duration || 7,
           theme: input.theme || 'Beaches and Nightlife',
+          numberOfTravellers: input.numberOfTravellers || 2,
         };
       }
       return output;
@@ -89,6 +93,7 @@ const suggestTripDetailsFlow = ai.defineFlow(
         budget: input.budget || '50000',
         duration: input.duration || 7,
         theme: input.theme || 'Beaches and Nightlife',
+        numberOfTravellers: input.numberOfTravellers || 2,
       };
     }
   }

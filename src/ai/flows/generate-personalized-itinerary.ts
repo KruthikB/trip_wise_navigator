@@ -31,6 +31,7 @@ const prompt = ai.definePrompt({
 Destination: {{{destination}}}, India
 Duration: {{{duration}}} days
 Budget: {{{budget}}} (Please assume this is in INR)
+Number of Travellers: {{{numberOfTravellers}}}
 Themes: {{#each themes}}{{{this}}}{{#unless @last}}, {{/unless}}{{/each}}
 
 The response must be a valid JSON object matching the output schema.
@@ -38,6 +39,7 @@ The top-level JSON object must include:
 - "destination": a string matching the user's input.
 - "duration": a number matching the user's input.
 - "budget": a string matching the user's input.
+- "numberOfTravellers": a number matching the user's input.
 - "itinerary": an array of day objects.
 
 Each day object in the "itinerary" array must include:
@@ -51,6 +53,7 @@ Each activity object in the "activities" array must include:
 - "travelTime": an optional string for estimated travel time.
 - "cost": an optional string for the estimated cost in INR.
 
+The costs should be estimated based on the number of travellers.
 Do not omit any of the required fields. All locations and activities must be within India. Do not include any explanations or conversational text. Only provide the raw JSON. If a theme is not feasible, choose a reasonable alternative suitable for the Indian destination.`,
 });
 
@@ -69,6 +72,7 @@ const generatePersonalizedItineraryFlow = ai.defineFlow(
           destination: input.destination,
           duration: input.duration,
           budget: input.budget,
+          numberOfTravellers: input.numberOfTravellers,
           itinerary: [],
         };
       }
@@ -80,6 +84,7 @@ const generatePersonalizedItineraryFlow = ai.defineFlow(
         destination: input.destination,
         duration: input.duration,
         budget: input.budget,
+        numberOfTravellers: input.numberOfTravellers,
         itinerary: [],
       };
     }

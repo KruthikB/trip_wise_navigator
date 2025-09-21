@@ -35,6 +35,7 @@ export default function LandingPage() {
     duration: number;
     budget: string;
     themes: string[];
+    numberOfTravellers: number;
   }) => {
     setLoading(true);
     setItinerary(null);

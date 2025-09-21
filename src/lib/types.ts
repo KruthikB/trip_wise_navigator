@@ -18,6 +18,7 @@ export const ItinerarySchema = z.object({
   destination: z.string().describe('The main destination of the trip.'),
   duration: z.number().describe('Total duration of the trip in days.'),
   budget: z.string().describe('The provided budget for the trip.'),
+  numberOfTravellers: z.number().describe('The number of people travelling.'),
   itinerary: z.array(ItineraryDaySchema).describe('The day-by-day itinerary.'),
 });
 
@@ -26,6 +27,7 @@ export const GeneratePersonalizedItineraryInputSchema = z.object({
   duration: z.number().describe('The duration of the trip in days.'),
   budget: z.string().describe('The budget for the trip in INR (e.g., "₹50,000").'),
   themes: z.array(z.string()).describe('The travel themes (e.g., ["heritage", "nightlife", "adventure"]).'),
+  numberOfTravellers: z.number().describe('The number of people travelling.'),
 });
 export type GeneratePersonalizedItineraryInput = z.infer<typeof GeneratePersonalizedItineraryInputSchema>;
 

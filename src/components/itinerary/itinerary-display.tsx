@@ -3,7 +3,7 @@
 
 import type { Itinerary } from '@/lib/types';
 import { Button } from '../ui/button';
-import { Share2, FileDown, Briefcase, CloudDrizzle, Sun } from 'lucide-react';
+import { Share2, FileDown, Briefcase, CloudDrizzle, Sun, Users } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Accordion } from '@/components/ui/accordion';
 import ItineraryDayView from './itinerary-day-view';
@@ -213,7 +213,10 @@ export default function ItineraryDisplay({ itinerary: itineraryProp, setItinerar
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <h3 className="text-2xl font-semibold leading-none tracking-tight">{t('yourTripTo', { destination: translatedItinerary.destination })}</h3>
-            <p className="text-sm text-muted-foreground">{t('tripDetails', { duration: translatedItinerary.duration, budget: translatedItinerary.budget })}</p>
+            <p className="flex items-center gap-4 text-sm text-muted-foreground">
+                <span>{t('tripDetails', { duration: translatedItinerary.duration, budget: translatedItinerary.budget })}</span>
+                <span className="flex items-center gap-1.5"><Users className="h-4 w-4"/> {translatedItinerary.numberOfTravellers} Travellers</span>
+            </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <DropdownMenu>
