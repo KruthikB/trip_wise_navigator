@@ -124,7 +124,7 @@ export default function LoginPage() {
        <div className="absolute top-8 flex items-center gap-2">
             <TripWiseLogo className="h-8 w-8 text-primary" />
             <span className="text-2xl font-bold font-headline">
-              TripWise Navigator
+              TripWise
             </span>
         </div>
       <Card className="w-full max-w-sm">

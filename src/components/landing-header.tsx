@@ -50,7 +50,7 @@ export default function LandingHeader() {
             <Link href="/" className="mr-6 flex items-center space-x-2">
               <TripWiseLogo className="h-8 w-8" />
               <span className="text-2xl font-bold sm:inline-block">
-                EaseMyTrip
+                TripWise
               </span>
             </Link>
           </div>
