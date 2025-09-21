@@ -32,6 +32,7 @@ export default function LandingPage() {
 
   const handleItineraryGeneration = async (data: {
     destination: string;
+    startDate: Date;
     duration: number;
     budget: string;
     themes: string[];
@@ -40,7 +41,10 @@ export default function LandingPage() {
     setLoading(true);
     setItinerary(null);
     try {
-      const result = await generatePersonalizedItinerary(data);
+      const result = await generatePersonalizedItinerary({
+        ...data,
+        startDate: data.startDate.toISOString().split('T')[0],
+      });
       const parsedItinerary = ItinerarySchema.parse(result);
       setItinerary(parsedItinerary);
     } catch (error) {

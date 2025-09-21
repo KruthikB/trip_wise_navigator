@@ -16,7 +16,7 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Card, CardContent } from '@/components/ui/card';
-import { Loader2, WandSparkles, Briefcase, Plane, Hotel, Tag } from 'lucide-react';
+import { Loader2, WandSparkles, Briefcase, Plane, Hotel, Tag, CalendarIcon } from 'lucide-react';
 import { Textarea } from './ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
@@ -24,9 +24,14 @@ import { useState } from 'react';
 import { suggestTripDetails } from '@/ai/flows/suggest-trip-details';
 import { useToast } from '@/hooks/use-toast';
 import { useTranslation } from '@/hooks/use-translation';
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
+import { cn } from '@/lib/utils';
+import { format } from 'date-fns';
+import { Calendar } from './ui/calendar';
 
 const formSchema = z.object({
   destination: z.string().min(2, { message: 'Destination must be at least 2 characters.' }),
+  startDate: z.date({ required_error: 'A start date is required.' }),
   duration: z.coerce.number().int().min(1, { message: 'Duration must be at least 1 day.' }),
   numberOfTravellers: z.coerce.number().int().min(1, { message: 'Must have at least 1 traveller.' }),
   budget: z.string().min(1, { message: 'Please enter a budget.' }),
@@ -43,6 +48,7 @@ export default function ItineraryForm({ onSubmit, isGenerating }: ItineraryFormP
     resolver: zodResolver(formSchema),
     defaultValues: {
       destination: 'Goa, India',
+      startDate: new Date(),
       duration: 7,
       numberOfTravellers: 2,
       budget: '50000',
@@ -87,6 +93,7 @@ export default function ItineraryForm({ onSubmit, isGenerating }: ItineraryFormP
       form.setValue('budget', budgetValue);
       form.setValue('themes', result.theme);
       form.setValue('numberOfTravellers', result.numberOfTravellers);
+      // Let's not change the date for surprise me, user might have specific dates in mind.
 
     } catch(error) {
        console.error('Failed to get suggestion:', error);
@@ -122,16 +129,55 @@ export default function ItineraryForm({ onSubmit, isGenerating }: ItineraryFormP
           <TabsContent value="holidays" className="m-0">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6">
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
                   <FormField
                     control={form.control}
                     name="destination"
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="lg:col-span-2">
                         <FormLabel>{t('destination')}</FormLabel>
                         <FormControl>
                           <Input placeholder={t('destinationPlaceholder')} {...field} />
                         </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="startDate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{t('startDate')}</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "w-full pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {field.value ? (
+                                  format(field.value, "PPP")
+                                ) : (
+                                  <span>{t('pickADate')}</span>
+                                )}
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                              mode="single"
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              disabled={(date) => date < new Date() || date > new Date("2100-01-01")}
+                              initialFocus
+                            />
+                          </PopoverContent>
+                        </Popover>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -154,7 +200,7 @@ export default function ItineraryForm({ onSubmit, isGenerating }: ItineraryFormP
                     name="numberOfTravellers"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Number of Travellers</FormLabel>
+                        <FormLabel>{t('numberOfTravellers')}</FormLabel>
                         <FormControl>
                           <Input type="number" placeholder="e.g., 2" {...field} />
                         </FormControl>
@@ -162,51 +208,49 @@ export default function ItineraryForm({ onSubmit, isGenerating }: ItineraryFormP
                       </FormItem>
                     )}
                   />
-                  <FormField
-                    control={form.control}
-                    name="budget"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{t('budget')}</FormLabel>
-                        <div className="flex gap-2">
-                           <FormControl>
-                            <Input placeholder="e.g., 50000" {...field} />
-                          </FormControl>
-                          <Select defaultValue="INR">
-                            <SelectTrigger className="w-[100px]">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="INR">INR</SelectItem>
-                              <SelectItem value="USD">USD</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
                 </div>
-
-                <FormField
-                  control={form.control}
-                  name="themes"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{t('interestsAndThemes')}</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder={t('themesPlaceholder')}
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        {t('themesDescription')}
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <FormField
+                      control={form.control}
+                      name="budget"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t('budget')}</FormLabel>
+                          <div className="flex gap-2">
+                            <FormControl>
+                              <Input placeholder="e.g., 50000" {...field} />
+                            </FormControl>
+                            <Select defaultValue="INR">
+                              <SelectTrigger className="w-[100px]">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="INR">INR</SelectItem>
+                                <SelectItem value="USD">USD</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                     <FormField
+                      control={form.control}
+                      name="themes"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{t('interestsAndThemes')}</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder={t('themesPlaceholder')}
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                 </div>
 
                 <div className="flex flex-wrap items-center gap-4 pt-4">
                   <Button type="submit" size="lg" className="flex-grow bg-[#FF5722] hover:bg-[#E64A19] text-white" disabled={isGenerating || isSuggesting}>

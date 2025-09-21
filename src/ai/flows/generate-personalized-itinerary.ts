@@ -29,6 +29,7 @@ const prompt = ai.definePrompt({
   prompt: `You are an expert travel planner specializing in domestic travel within India. Generate a personalized trip itinerary in JSON format based on the following information:
 
 Destination: {{{destination}}}, India
+Start Date: {{{startDate}}}
 Duration: {{{duration}}} days
 Budget: {{{budget}}} (Please assume this is in INR)
 Number of Travellers: {{{numberOfTravellers}}}
@@ -37,6 +38,7 @@ Themes: {{#each themes}}{{{this}}}{{#unless @last}}, {{/unless}}{{/each}}
 The response must be a valid JSON object matching the output schema.
 The top-level JSON object must include:
 - "destination": a string matching the user's input.
+- "startDate": a string matching the user's input start date.
 - "duration": a number matching the user's input.
 - "budget": a string matching the user's input.
 - "numberOfTravellers": a number matching the user's input.
@@ -70,6 +72,7 @@ const generatePersonalizedItineraryFlow = ai.defineFlow(
         // If the AI fails but doesn't throw, return an empty but valid structure.
         return {
           destination: input.destination,
+          startDate: input.startDate,
           duration: input.duration,
           budget: input.budget,
           numberOfTravellers: input.numberOfTravellers,
@@ -82,6 +85,7 @@ const generatePersonalizedItineraryFlow = ai.defineFlow(
       // On error (e.g., rate limit), also return an empty structure.
       return {
         destination: input.destination,
+        startDate: input.startDate,
         duration: input.duration,
         budget: input.budget,
         numberOfTravellers: input.numberOfTravellers,

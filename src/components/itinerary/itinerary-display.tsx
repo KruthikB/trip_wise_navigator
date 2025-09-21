@@ -3,7 +3,7 @@
 
 import type { Itinerary } from '@/lib/types';
 import { Button } from '../ui/button';
-import { Share2, FileDown, Briefcase, CloudDrizzle, Sun, Users } from 'lucide-react';
+import { Share2, FileDown, Briefcase, CloudDrizzle, Sun, Users, Calendar } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Accordion } from '@/components/ui/accordion';
 import ItineraryDayView from './itinerary-day-view';
@@ -30,6 +30,7 @@ import { useTranslation } from '@/hooks/use-translation';
 import { useBookings } from '@/hooks/use-bookings';
 import BookingModal from '../booking-modal';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { format } from 'date-fns';
 
 type ItineraryDisplayProps = {
   itinerary: Itinerary;
@@ -216,6 +217,7 @@ export default function ItineraryDisplay({ itinerary: itineraryProp, setItinerar
             <CardTitle className="text-2xl tracking-tight">{t('yourTripTo', { destination: translatedItinerary.destination })}</CardTitle>
             <p className="flex items-center gap-4 text-sm text-muted-foreground mt-2">
                 <span>{t('tripDetails', { duration: translatedItinerary.duration, budget: translatedItinerary.budget })}</span>
+                <span className="flex items-center gap-1.5"><Calendar className="h-4 w-4"/> {format(new Date(translatedItinerary.startDate), 'PPP')}</span>
                 <span className="flex items-center gap-1.5"><Users className="h-4 w-4"/> {translatedItinerary.numberOfTravellers} Travellers</span>
             </p>
           </div>
