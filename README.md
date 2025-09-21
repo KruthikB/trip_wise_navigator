@@ -20,7 +20,7 @@ TripWise is an AI-powered travel assistant that helps users:
 ![Registeration Screenshot](docs/Registeration.png)  
 ![Dashboard Screenshot](docs/Dashboard.png)  
 ![Itinerary Generator](docs/Registeration.png)
-![Map Generator](docs/Map.pngg)
+![Map Generator](docs/Map.png)
 ![MyBookings Generator](docs/MyBookings.jpg)
 
 ## Quickstart
