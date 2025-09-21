@@ -7,9 +7,12 @@ import { useEffect, useState } from 'react';
 import PageHeader from '@/components/page-header';
 import { Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useBookings } from '@/hooks/use-bookings';
+import { format } from 'date-fns';
 
 export default function MyBookingsPage() {
   const { user, loading: authLoading } = useAuth();
+  const { bookings, loading: bookingsLoading } = useBookings();
   const router = useRouter();
   const [isClient, setIsClient] = useState(false);
 
@@ -23,19 +26,13 @@ export default function MyBookingsPage() {
     }
   }, [user, authLoading, router, isClient]);
 
-  if (!isClient || authLoading || !user) {
+  if (!isClient || authLoading || !user || bookingsLoading) {
     return (
       <div className="flex h-screen w-full items-center justify-center">
         <Loader2 className="h-16 w-16 animate-spin text-primary" />
       </div>
     );
   }
-
-  // Placeholder bookings data
-  const bookings = [
-    { id: 1, destination: 'Goa, India', date: '2024-09-15', status: 'Confirmed' },
-    { id: 2, destination: 'Jaipur, India', date: '2024-11-20', status: 'Confirmed' },
-  ];
 
   return (
     <div className="flex min-h-screen flex-col bg-background">
@@ -52,7 +49,7 @@ export default function MyBookingsPage() {
                   </CardHeader>
                   <CardContent>
                     <p className="text-muted-foreground">
-                      Travel Date: {booking.date}
+                      Booked On: {format(new Date(booking.bookingDate), 'PPP')}
                     </p>
                     <p>
                       Status:{' '}
@@ -64,7 +61,11 @@ export default function MyBookingsPage() {
                 </Card>
               ))
             ) : (
-              <p>You have no bookings yet.</p>
+              <Card>
+                <CardContent className="pt-6">
+                  <p className="text-center text-muted-foreground">You have no bookings yet. Go plan a trip!</p>
+                </CardContent>
+              </Card>
             )}
           </div>
         </div>

@@ -27,6 +27,7 @@ import { useLanguage } from '@/hooks/use-language';
 import { translateText } from '@/ai/flows/translate-text';
 import { Loader2 } from 'lucide-react';
 import { useTranslation } from '@/hooks/use-translation';
+import { useBookings } from '@/hooks/use-bookings';
 
 type ItineraryDisplayProps = {
   itinerary: Itinerary;
@@ -40,6 +41,7 @@ export default function ItineraryDisplay({ itinerary: itineraryProp, setItinerar
   const { language } = useLanguage();
   const [openDays, setOpenDays] = useState<string[]>(['day-1']);
   const { t } = useTranslation();
+  const { addBooking } = useBookings();
   
   const [translatedItinerary, setTranslatedItinerary] = useState<Itinerary>(itineraryProp);
   const [isTranslating, setIsTranslating] = useState(false);
@@ -139,8 +141,10 @@ export default function ItineraryDisplay({ itinerary: itineraryProp, setItinerar
         });
         return;
     }
-    // In a real app, you'd call the booking API here.
-    // For this demo, we'll just show a success message.
+    
+    // Use the original, untranslated itinerary for booking
+    addBooking(itineraryProp);
+    
     toast({
         title: t('bookingConfirmedTitle'),
         description: t('bookingConfirmedDescription', { destination: translatedItinerary.destination }),
