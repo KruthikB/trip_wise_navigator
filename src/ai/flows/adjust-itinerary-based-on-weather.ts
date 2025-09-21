@@ -56,7 +56,13 @@ const adjustItineraryBasedOnWeatherFlow = ai.defineFlow(
     outputSchema: AdjustItineraryBasedOnWeatherOutputSchema,
   },
   async input => {
-    const {output} = await prompt(input);
-    return {adjustedItinerary: output?.adjustedItinerary ?? input.itinerary};
+    try {
+      const {output} = await prompt(input);
+      return {adjustedItinerary: output?.adjustedItinerary ?? input.itinerary};
+    } catch (error) {
+      console.error('Error in adjustItineraryBasedOnWeatherFlow:', error);
+      // On error, return the original itinerary to prevent crashing.
+      return {adjustedItinerary: input.itinerary};
+    }
   }
 );

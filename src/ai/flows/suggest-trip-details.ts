@@ -1,3 +1,4 @@
+
 'use server';
 /**
  * @fileOverview An AI-powered assistant to help users plan trips within India
@@ -68,9 +69,21 @@ const suggestTripDetailsFlow = ai.defineFlow(
     outputSchema: SuggestTripDetailsOutputSchema,
   },
   async input => {
-    const {output} = await prompt(input);
-    // Fallback to a default suggestion if AI fails.
-    if (!output) {
+    try {
+      const {output} = await prompt(input);
+      // Fallback to a default suggestion if AI fails without throwing.
+      if (!output) {
+        return {
+          destination: input.destination || 'Goa, India',
+          budget: input.budget || '50000',
+          duration: input.duration || 7,
+          theme: input.theme || 'Beaches and Nightlife',
+        };
+      }
+      return output;
+    } catch (error) {
+      console.error('Error in suggestTripDetailsFlow:', error);
+      // On error, return the original inputs to avoid breaking the form.
       return {
         destination: input.destination || 'Goa, India',
         budget: input.budget || '50000',
@@ -78,6 +91,5 @@ const suggestTripDetailsFlow = ai.defineFlow(
         theme: input.theme || 'Beaches and Nightlife',
       };
     }
-    return output;
   }
 );

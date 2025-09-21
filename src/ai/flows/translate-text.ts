@@ -60,12 +60,18 @@ const translateTextFlow = ai.defineFlow(
     outputSchema: TranslateTextOutputSchema,
   },
   async input => {
-    // If the input text is empty or just whitespace, don't call the AI.
     if (!input.textsToTranslate || input.textsToTranslate.length === 0) {
       return { translatedTexts: [] };
     }
-    const { output } = await prompt(input);
-    // Fallback to original content if translation fails to prevent crash
-    return { translatedTexts: output?.translatedTexts ?? input.textsToTranslate };
+    
+    try {
+      const { output } = await prompt(input);
+      // Fallback to original content if translation fails to prevent crash
+      return { translatedTexts: output?.translatedTexts ?? input.textsToTranslate };
+    } catch (error) {
+      console.error('Error in translateTextFlow:', error);
+      // On error, return the original text to prevent crashing.
+      return { translatedTexts: input.textsToTranslate };
+    }
   }
 );

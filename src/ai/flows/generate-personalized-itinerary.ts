@@ -61,10 +61,21 @@ const generatePersonalizedItineraryFlow = ai.defineFlow(
     outputSchema: GeneratePersonalizedItineraryOutputSchema,
   },
   async input => {
-    const {output} = await prompt(input);
-    if (!output) {
-      // If the AI fails, return an empty but valid itinerary structure
-      // to prevent the client from crashing.
+    try {
+      const {output} = await prompt(input);
+      if (!output) {
+        // If the AI fails but doesn't throw, return an empty but valid structure.
+        return {
+          destination: input.destination,
+          duration: input.duration,
+          budget: input.budget,
+          itinerary: [],
+        };
+      }
+      return output;
+    } catch (error) {
+      console.error('Error in generatePersonalizedItineraryFlow:', error);
+      // On error (e.g., rate limit), also return an empty structure.
       return {
         destination: input.destination,
         duration: input.duration,
@@ -72,6 +83,5 @@ const generatePersonalizedItineraryFlow = ai.defineFlow(
         itinerary: [],
       };
     }
-    return output;
   }
 );
