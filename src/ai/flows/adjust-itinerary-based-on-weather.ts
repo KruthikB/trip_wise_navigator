@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -56,6 +57,6 @@ const adjustItineraryBasedOnWeatherFlow = ai.defineFlow(
   },
   async input => {
     const {output} = await prompt(input);
-    return {adjustedItinerary: output!.adjustedItinerary};
+    return {adjustedItinerary: output?.adjustedItinerary ?? input.itinerary};
   }
 );
