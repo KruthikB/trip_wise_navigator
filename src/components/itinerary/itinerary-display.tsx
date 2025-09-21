@@ -33,19 +33,6 @@ type ItineraryDisplayProps = {
   setItinerary: React.Dispatch<React.SetStateAction<Itinerary | null>>;
 };
 
-// Helper function to translate a single piece of text
-const translateField = async (text: string, language: string) => {
-  if (!text || language === 'en') return text;
-  try {
-    const result = await translateText({ text, targetLanguage: language });
-    return result.translatedText;
-  } catch (error) {
-    console.error(`Failed to translate text: "${text}"`, error);
-    return text; // Return original text on failure
-  }
-};
-
-
 export default function ItineraryDisplay({ itinerary: itineraryProp, setItinerary }: ItineraryDisplayProps) {
   const itineraryContentRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
@@ -67,32 +54,46 @@ export default function ItineraryDisplay({ itinerary: itineraryProp, setItinerar
 
       setIsTranslating(true);
       try {
-        // Translate top-level fields
-        const destinationPromise = translateField(itineraryProp.destination, language);
+        const textsToTranslate: string[] = [itineraryProp.destination];
+        itineraryProp.itinerary.forEach(day => {
+          textsToTranslate.push(day.title);
+          day.activities.forEach(activity => {
+            textsToTranslate.push(activity.placeName);
+            textsToTranslate.push(activity.description);
+          });
+        });
 
-        // Translate nested fields in parallel
-        const translatedDaysPromise = Promise.all(
-          itineraryProp.itinerary.map(async (day) => {
-            const titlePromise = translateField(day.title, language);
-            const activitiesPromise = Promise.all(
-              day.activities.map(async (activity) => {
-                const placeNamePromise = translateField(activity.placeName, language);
-                const descriptionPromise = translateField(activity.description, language);
-                const [placeName, description] = await Promise.all([placeNamePromise, descriptionPromise]);
-                return { ...activity, placeName, description };
-              })
-            );
-            const [title, activities] = await Promise.all([titlePromise, activitiesPromise]);
-            return { ...day, title, activities };
-          })
-        );
-        
-        const [destination, itinerary] = await Promise.all([destinationPromise, translatedDaysPromise]);
+        const { translatedTexts } = await translateText({ textsToTranslate, targetLanguage: language });
+
+        if (translatedTexts.length !== textsToTranslate.length) {
+            throw new Error("Translation returned incorrect number of items.");
+        }
+
+        let counter = 0;
+        const newDestination = translatedTexts[counter++];
+
+        const newItineraryDays = itineraryProp.itinerary.map(day => {
+            const newTitle = translatedTexts[counter++];
+            const newActivities = day.activities.map(activity => {
+                const newPlaceName = translatedTexts[counter++];
+                const newDescription = translatedTexts[counter++];
+                return {
+                    ...activity,
+                    placeName: newPlaceName,
+                    description: newDescription,
+                };
+            });
+            return {
+                ...day,
+                title: newTitle,
+                activities: newActivities,
+            };
+        });
 
         setTranslatedItinerary({
           ...itineraryProp,
-          destination,
-          itinerary,
+          destination: newDestination,
+          itinerary: newItineraryDays,
         });
 
       } catch (error) {
